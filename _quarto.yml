@@ -1,0 +1,67 @@
+# Quarto project for the classroom storybooks.
+#
+# The storybook-NN.md files are the single source of truth and stay plain
+# Markdown: no YAML front matter, no LaTeX, no styling. Everything that turns
+# them into a PDF lives here and in _style/. Adding storybook-02.md .. 05.md
+# needs no change to this file — they are picked up by the glob below and
+# render identically.
+#
+#   quarto render                    # all storybooks -> _output/*.pdf
+#   quarto render storybook-01.md    # just one
+#
+# Conventions the filters rely on (see _style/README.md):
+#   * the first H1 becomes the title, a following all-bold line the subtitle
+#   * a plain (unlabelled) code block is replaced by the SVG named in the
+#     paragraph right before it, e.g. "the render in `images/foo.svg`"
+#   * a blockquote starting with **Prompt N.M** becomes a prompt card
+
+project:
+  type: default
+  output-dir: _output
+  render:
+    - storybook-*.md
+
+format:
+  pdf:
+    # ---- engine and page ------------------------------------------------
+    pdf-engine: xelatex
+    documentclass: scrartcl
+    classoption: [titlepage, parskip=half-, numbers=noenddot]
+    papersize: a4
+    geometry:
+      - top=25mm
+      - bottom=28mm
+      - left=30mm
+      - right=30mm
+      - headsep=8mm
+      - footskip=14mm
+    fontsize: 11pt
+    linestretch: 1.05
+
+    # ---- structure ------------------------------------------------------
+    toc: true
+    toc-depth: 2
+    toc-title: "What we do today"
+    number-sections: false
+    colorlinks: true
+    lof: false
+    lot: false
+
+    # ---- code -----------------------------------------------------------
+    highlight-style: _style/storybook.theme
+    code-block-bg: false      # we draw the code frame ourselves (preamble.tex)
+    code-overflow: wrap       # safety net: no code ever runs into the margin
+
+    # ---- figures --------------------------------------------------------
+    fig-align: center
+    fig-format: pdf
+
+    # ---- our styling ----------------------------------------------------
+    include-in-header:
+      - _style/preamble.tex
+    filters:
+      - _style/filters/frontmatter.lua
+      - _style/filters/diagram.lua
+      - _style/filters/prompt-card.lua
+      - _style/filters/rubrics.lua
+      - _style/filters/pagination.lua

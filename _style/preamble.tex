@@ -1,0 +1,145 @@
+% =====================================================================
+%  Storybook PDF style  —  loaded via include-in-header from _quarto.yml
+%  Applies unchanged to storybook-01.md .. storybook-05.md.
+%
+%  Palette is the heise ink blue / page gray the course itself derives in
+%  Step 10, and the design language matches it: square corners, hairlines
+%  instead of shadows, a vertical marker bar as the recurring accent.
+% =====================================================================
+
+% ---------- palette --------------------------------------------------
+\usepackage{xcolor}
+\definecolor{sbInk}{HTML}{0056A4}   % brand blue: headings, links, markers
+\definecolor{sbWash}{HTML}{E8EDF0}  % page gray: box fills
+\definecolor{sbRule}{HTML}{C3D0DA}  % hairlines
+\definecolor{sbText}{HTML}{1A1A1A}
+\definecolor{sbMuted}{HTML}{5A6B78}
+
+% ---------- fonts ----------------------------------------------------
+% Linux Libertine / Biolinum + Inconsolata all ship with TinyTeX, so the
+% build needs no system font installation.
+\usepackage[mono=false]{libertine}
+\usepackage[varqu,scaled=0.96]{zi4}   % Inconsolata: unambiguous 0/O, l/1
+\usepackage{microtype}
+\color{sbText}
+
+% ---------- headings -------------------------------------------------
+\addtokomafont{disposition}{\sffamily}
+\setkomafont{section}{\sffamily\bfseries\Large\color{sbInk}}
+\setkomafont{subsection}{\sffamily\bfseries\large\color{sbText}}
+\setkomafont{subsubsection}{\sffamily\bfseries\normalsize\color{sbText}}
+\RedeclareSectionCommand[beforeskip=-\baselineskip,afterskip=.4\baselineskip]{section}
+
+% ---------- title page -----------------------------------------------
+\setkomafont{title}{\sffamily\bfseries\Huge\color{sbInk}}
+\setkomafont{subtitle}{\sffamily\mdseries\large\color{sbMuted}}
+\setkomafont{author}{\sffamily\normalsize\color{sbMuted}}
+\setkomafont{date}{\sffamily\small\color{sbMuted}}
+\renewcommand*{\titlepagestyle}{empty}
+% a hairline between title and subtitle
+\usepackage{etoolbox}
+\pretocmd{\subtitle}{}{}{}
+\newcommand{\sbtitlerule}{\par\vskip.6em{\color{sbInk}\rule{\linewidth}{1.2pt}}\par\vskip.9em}
+
+% ---------- table of contents ----------------------------------------
+\setkomafont{sectionentry}{\sffamily\bfseries\normalsize\color{sbText}}
+\addtokomafont{sectionentrypagenumber}{\color{sbMuted}}
+\setkomafont{descriptionlabel}{\sffamily\bfseries}
+
+% ---------- running head and foot -------------------------------------
+\usepackage[automark,headsepline]{scrlayer-scrpage}
+\setkomafont{headsepline}{\color{sbRule}}
+\clearpairofpagestyles
+\automark[section]{section}
+\ihead{\sffamily\small\color{sbMuted}\headmark}
+\ofoot[\sffamily\small\color{sbMuted}\pagemark]{\sffamily\small\color{sbMuted}\pagemark}
+\pagestyle{scrheadings}
+
+% ---------- links -----------------------------------------------------
+% hyperref is loaded after header-includes, so defer the override.
+\AtBeginDocument{%
+  \hypersetup{linkcolor=sbInk, urlcolor=sbInk, citecolor=sbInk,
+              linktoc=all, breaklinks=true}}
+
+% ---------- boxes -----------------------------------------------------
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% Shell / code listings: page-gray fill with a gray marker bar.
+\newtcolorbox{sbcode}{%
+  enhanced, breakable, sharp corners, boxrule=0pt, frame hidden,
+  colback=sbWash!45!white,
+  borderline west={2.2pt}{0pt}{sbRule},
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=9pt, after skip=9pt, parbox=false}
+
+% Pandoc wraps every highlighted block in Shaded; take it over.
+\makeatletter
+\@ifundefined{Shaded}{\newenvironment{Shaded}{}{}}{}
+\makeatother
+\renewenvironment{Shaded}{\begin{sbcode}}{\end{sbcode}}
+\fvset{fontsize=\small, baselinestretch=0.96}
+
+% Prompts: the text you actually hand to the agent. Strongest treatment on
+% the page, because in a live session this is the thing people copy.
+\newtcolorbox{sbprompt}[1]{%
+  enhanced, breakable, sharp corners, boxrule=0.6pt,
+  colback=white, colframe=sbRule,
+  borderline west={3pt}{0pt}{sbInk},
+  title={\sffamily\bfseries\small #1},
+  colbacktitle=sbInk, coltitle=white,
+  attach boxed title to top left={xshift=-0.6pt, yshift=-0.6pt},
+  boxed title style={sharp corners, boxrule=0pt, size=small},
+  top=10pt, bottom=8pt, left=9pt, right=9pt,
+  before skip=11pt, after skip=11pt, parbox=false,
+  fontupper=\sffamily\small}
+
+% Verify: the acceptance check that closes each step.
+\newtcolorbox{sbverify}{%
+  enhanced, breakable, sharp corners, boxrule=0pt, frame hidden,
+  colback=sbWash!55!white,
+  borderline west={2.2pt}{0pt}{sbInk},
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=9pt, after skip=11pt, parbox=false,
+  fontupper=\small}
+
+% Goal: the one-line lead under a step heading.
+\newcommand{\sbgoalbegin}{%
+  \par\addvspace{.2em}\begingroup\sffamily\small\color{sbMuted}%
+  \textbf{\textcolor{sbInk}{Goal}}\hspace{.7em}\ignorespaces}
+\newcommand{\sbgoalend}{\par\endgroup\addvspace{.3em}}
+
+% Run-in label for the Verify box.
+\newcommand{\sbverifylabel}{%
+  {\sffamily\bfseries\footnotesize\color{sbInk}VERIFY}\hspace{.7em}\ignorespaces}
+
+% "Teaching points" and friends: bold stand-alone lines acting as rubrics.
+\usepackage{needspace}
+\makeatletter
+\newcommand{\sbrubric}[1]{%
+  \par\addvspace{1.2em}\needspace{3.5\baselineskip}%
+  \noindent{\sffamily\bfseries\small\color{sbInk}\MakeUppercase{#1}}\par
+  \nobreak\vskip-.15em
+  \begingroup\color{sbRule}\hrule height .4pt\endgroup
+  \nobreak\vskip.5em\@afterheading}
+\makeatother
+
+% ---------- lists -----------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=.25em, parsep=0pt, topsep=.4em}
+\setlist[itemize]{label=\textcolor{sbInk}{\rule[.25ex]{.45em}{.45em}}}
+\setlist[itemize,2]{label=\textcolor{sbRule}{\rule[.25ex]{.4em}{.4em}}}
+\setlist[enumerate]{font=\sffamily\bfseries\color{sbInk}}
+
+% ---------- figures ---------------------------------------------------
+\setkomafont{caption}{\sffamily\small\color{sbMuted}}
+\setkomafont{captionlabel}{\sffamily\bfseries\small\color{sbInk}}
+
+% ---------- page breaking ---------------------------------------------
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+\raggedbottom
+\sloppy
+\hbadness=10000

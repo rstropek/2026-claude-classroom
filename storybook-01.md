@@ -1,6 +1,6 @@
-# Session 1 storybook: "Claude Code einsetzen"
+# Session 1 Storybook
 
-**Classroom: Agentische Entwicklung mit Claude Code, Mastra & CopilotKit, Session 1 (Sept 1st)**
+**Classroom: Agentische Entwicklung mit Claude Code, Mastra & CopilotKit, Session 1**
 
 This is the live-coding script for the hands-on part of session 1. Each step gives you a
 **Goal**, the **Prompt** to hand Claude Code, **Teaching points** to narrate while the
