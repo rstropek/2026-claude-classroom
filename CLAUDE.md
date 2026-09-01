@@ -1,0 +1,1 @@
+Storybook for a training about coding with AI. Students are professional programmers with years of experience, but no or limited experience with agentic AI. Everybody knows simple chat bots, but not the more advanced capabilities of agentic AI. You can assume at least good foundational knowledge about TypeScript and related technologies.

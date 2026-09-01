@@ -1,0 +1,18 @@
++--------------------+                        +--------------------------------+
+|      Browser       |     "AG-UI / HTTP"     |          "Next.js 16"          |
+|                    +----------------------->|                                |
+| "login / signup"   |                        | Better Auth                    |
+| CopilotChat        |                        | chat handler "(session gate)"  |
+| "(CopilotKit v2)"  |                        |   CopilotKit runtime           |
+| todo sidebar       |                        |     "+ AG-UI bridge"           |
++--------------------+                        | Mastra "tutor" agent           |
+                                              |  "memory + todo tools"         |
+                                              +------+------------------+------+
+                                                     |                  |
+                                                     v                  v
+                                          +----------------------+  +----------------------+
+                                          | SQLite               |  | OpenRouter           |
+                                          | "(Drizzle + libsql)" |  | "z-ai/glm-5.3-flash" |
+                                          | auth, todos,         |  +----------------------+
+                                          | "mastra_*" memory    |
+                                          +----------------------+
