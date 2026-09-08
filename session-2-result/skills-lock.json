@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "skills": {
+    "copilotkit-agui": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit-agui/SKILL.md",
+      "computedHash": "67f23c8448e4b3b2b467ee9ac3659686b3d8315ed2c73a201810018b06947bd7"
+    },
+    "copilotkit-debug": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit-debug/SKILL.md",
+      "computedHash": "44d003cc893a02d31bd87efe067359bb5ac5294cf86b65f26806e1cbd2da78d5"
+    },
+    "copilotkit-develop": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit-develop/SKILL.md",
+      "computedHash": "2ef1ac515ab17171266477c2c131f9956bb32ebfd417c9a3225187d17d9f73ea"
+    },
+    "copilotkit-setup": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit-setup/SKILL.md",
+      "computedHash": "dedd4e6c60a1e0e5ab2e76c66e2120b7012655d5918091984c8384a18b6bef22"
+    },
+    "find-docs": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "skillPath": "skills/find-docs/SKILL.md",
+      "computedHash": "93ec2d2786d7e83973252383875c4f345a2ee7cbbd08a1ab38e5201b214640ee"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    },
+    "grilling": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
+      "computedHash": "4dd886b0196bf43729d954ae326016f2bd9f5f79d892500b407c33a753362f14"
+    },
+    "mastra": {
+      "source": "mastra-ai/skills",
+      "sourceType": "github",
+      "skillPath": "skills/mastra/SKILL.md",
+      "computedHash": "6482dad39fb72d1fe9d02078c15c3ee708774fd026a8557b4c7dc37fb554977a"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+    }
+  }
+}

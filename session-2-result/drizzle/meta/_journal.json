@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788258126281,
+      "tag": "0000_true_sugar_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788258977489,
+      "tag": "0001_boring_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788854074529,
+      "tag": "0002_shallow_psylocke",
+      "breakpoints": true
+    }
+  ]
+}
