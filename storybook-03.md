@@ -268,8 +268,9 @@ git switch -c todo-cli
 > filter as the API, and `done <id>`. The server URL defaults to http://localhost:3000
 > with an env var override. Store the token the way gh does: a file with owner-only
 > permissions in the user's config directory, never in the repo and never printed. The
-> CLI imports the zod contract from step 15 instead of re-declaring shapes, so move the
-> contract into a shared workspace if that's what it takes. Tests: a Vitest integration
+> API's request and response shapes already exist as zod schemas in the web app; the
+> CLI imports them instead of re-declaring anything, so move that module into a shared
+> workspace if that's what it takes. Tests: a Vitest integration
 > test that drives the built CLI end to end against a real server the test starts on a
 > spare port with a temporary database and a redirected config directory: login (the
 > test approves the device code through Better Auth's test utils, no browser), whoami,
@@ -440,9 +441,8 @@ git switch -c mcp-stdio
 > follow the guide word for word to register the server there, and run `claude -p`
 > in that directory with a question about the todo list, with the todo tools allowed
 > and nothing else. Fix the guide where it was wrong, and tell me what the run
-> answered. One more thing from your last summary: cli/node_modules is tracked in
-> git; fix .gitignore so no workspace's node_modules is tracked and untrack what
-> slipped in.
+> answered. One more thing: cli/node_modules is tracked in git; fix .gitignore so no
+> workspace's node_modules is tracked and untrack what slipped in.
 
 Then register the server for this repo the way the guide says, with the project scope
 so `.mcp.json` lands in the diff:
