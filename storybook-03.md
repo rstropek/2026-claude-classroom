@@ -214,9 +214,24 @@ one is a shell.
   cheap to write and expensive to forget, and asking for it in the same sentence as
   the feature means the agent designs the auth check first. Open the test file and
   count the 401 cases before you look at anything else in the diff.
-- **Test-utils mint what curl gets.** The test-utils plugin's `login` helper returns
-  the same session token the `set-auth-token` header carries, so the flow test runs
-  the real auth path without HTTP. Same trick as step 6, one plugin further.
+- **Test-utils mint what curl gets, almost.** The test-utils plugin's `login` helper
+  returns a session token, so the flow test runs the real auth path without HTTP.
+  Expect a twist, though. The agent is likely to switch on the bearer plugin's
+  `requireSignature`, so the API accepts only the signed token that sign-in hands
+  out, and the raw token from the session table gets a 401. The test then has to
+  take the signed value from the cookie the helper returns. If the agent's summary
+  mentions that, read it out, because that is the difference between a token that
+  is a database key and a token that proves it came from the server.
+- **Writes ignore cookies.** Expect `POST` and `PATCH` to read only the
+  `Authorization` header, while `GET` still takes the cookie for the sidebar. That
+  keeps a cross-site page from piggybacking on the browser session to write, and it
+  keeps the tutor as the browser's only write path. Ask the agent why, and expect
+  the CSRF argument.
+- **A test that can't fail proves nothing.** Expect the agent to break its own work
+  on purpose, once by removing the bearer plugin and once by sending the unsigned
+  token, and to report that the flow test failed both times. That is mutation
+  testing by hand, and it costs two turns. If the summary doesn't mention it, ask
+  for it.
 - **The contract module is a bet on step 16.** The prompt asks for the zod schemas in
   one importable module and says why. Expect the agent to put them in `lib/` for
   now, since the CLI doesn't exist yet. Step 16 moves them into a shared workspace,
@@ -225,6 +240,8 @@ one is a shell.
   and the sidebar's route said so in a comment. Check that the agent updated that
   comment and the AGENTS.md line about the write path. Memory that describes the
   old world is worse than no memory.
+
+Budget five minutes and about two dollars for this prompt.
 
 **Verify:** `npm test` is green with the new 401 cases, the curl round trip works, and
 the sidebar shows the item. Commit and push.
@@ -260,6 +277,11 @@ git switch -c todo-cli
 > https://better-auth.com/llms.txt. Suite green from the root, biome clean, AGENTS.md
 > current.
 
+This is the longest run of the day. Budget 15 minutes and about six dollars, and use
+the time for the teaching points below, because the agent has a lot to show: a
+workspace move, a schema migration for the device codes, a new page, and a test that
+starts a server.
+
 When the run finishes, use the CLI yourself, with `npm run dev` still running:
 
 ```bash
@@ -268,25 +290,40 @@ npx ai-tutor login
 ```
 
 The CLI prints a code and a URL and waits. Open the URL in the browser where you're
-signed in, enter the code, approve, and the terminal says who you are. Then:
+signed in, check the code, approve, and the terminal says who you are. Then:
 
 ```bash
 npx ai-tutor whoami
 npx ai-tutor add "read the device flow RFC"
 npx ai-tutor list
 npx ai-tutor done <id>
+npx ai-tutor list --json
 ```
 
 The sidebar in the browser shows the item after a reload. Ask the room where the token
-went, then show it:
+went, then show it. AGENTS.md names the directory, and on macOS and Linux it is
+`~/.config/ai-tutor/` unless `XDG_CONFIG_HOME` says otherwise:
 
 ```bash
-ls -l ~/.config/ai-tutor/      # or wherever the agent put it, AGENTS.md says
+ls -la ~/.config/ai-tutor/
 ```
+
+### The test that passes when it feels like it
+
+Run `npm test` twice. In one of the runs the CLI test probably fails, with the two
+items in the list swapped. That is a real bug, and the agent's own run had no way to
+see it, since the test passed for the agent. Hand it over:
+
+> **Prompt 16.2**
+>
+> The new CLI integration test fails in some runs: the two items in the list come back
+> in the wrong order. Find the root cause and fix it there rather than by loosening
+> the test; the list order must be stable and mean something to a user. Suite green,
+> AGENTS.md current.
 
 Then the skill:
 
-> **Prompt 16.2**
+> **Prompt 16.3**
 >
 > Use the skill-creator skill to write a project skill `ai-tutor-cli` that teaches an
 > agent when and how to use our CLI: the situations it's for, the login prerequisite
@@ -300,41 +337,77 @@ Then the skill:
 
 - **A CLI is the cheapest agent interface there is.** Every coding agent has a shell,
   and a tool with a good `--help` needs no SDK and no registration. Run
-  `npx ai-tutor --help` and read it as the agent would. If a command's description
-  doesn't say what it returns, an agent will guess, and the skill in prompt 16.2 is
-  where the guessing stops.
+  `npx ai-tutor --help` and read it as the agent would. Expect sections the prompt
+  never asked for, such as the environment variables, the token file, and the exit
+  codes, with exit code 4 for "run login first" the way gh does it. That is what
+  "good enough for an agent" buys when the model knows what agents read.
 - **Workspaces are the agent's decision, the constraint is yours.** The prompt says
   "second npm workspace" and "import the contract instead of re-declaring". How the
   repo gets there is the agent's job. Expect a root `workspaces` entry, a `cli/`
-  package with its own `tsconfig.json`, and the zod schemas moved out of `lib/` into a
-  third workspace that both sides depend on. `npx ai-tutor` works because npm links
-  workspace binaries into the root `node_modules/.bin`, which is also why the prompt
-  says "after npm install".
+  package that builds itself on `npm install`, and the zod schemas moved out of `lib/`
+  into a third workspace under `packages/` that both sides depend on. `npx ai-tutor`
+  works because npm links workspace binaries into the root `node_modules/.bin`, which
+  is also why the prompt says "after npm install".
 - **The device flow is how a terminal logs in without a callback.** The CLI asks the
   server for a device code and a user code, prints the user code, and polls. The user
   approves in a browser session that already exists. The server hands the CLI a
   session token, and from then on the CLI sends it as a bearer token, the same header
   curl used in step 15. Expect the agent to add the approval page to the app, because
-  Better Auth ships the endpoints and leaves the page to you.
+  Better Auth ships the endpoints and leaves the page to you, and expect it to make
+  the login page honor a `redirect` parameter so a signed-out user lands back on the
+  approval page.
+- **Step 15's decision comes back.** The device endpoint hands out the raw session
+  token, and the API from step 15 accepts only signed ones. Expect the agent to hit
+  that wall in its own test, to read the Better Auth docs on hooks, and to add a hook
+  that sends the signed token on the device endpoint too. Read that part of the
+  summary out. An agent that fixed it by turning `requireSignature` off would have
+  passed the test as well, and the summary is where you find out which it did.
 - **Where secrets live on a developer machine.** The prompt says "the way gh does",
-  and the mechanism is a file in the user's config directory with mode 0600, outside
-  any repo. Ask the agent how `logout` works, and expect "delete the file and revoke
-  the session". The revoke is the part a junior forgets.
+  and the mechanism is a file per server URL in the user's config directory, the
+  directory at mode 700 and the file at 600. Ask the agent how `logout` works, and
+  expect "revoke the session on the server, then delete the file". The revoke is the
+  part a junior forgets.
 - **The integration test starts a server.** The test can't drive the CLI against route
   handlers in memory, because the CLI is a separate process talking HTTP. Expect a
-  setup that spawns `next dev` on a spare port with a temp database, and a test that
-  approves the device code by calling the auth API with a session that test-utils
-  minted. That approval step is the trick the prompt hands the agent, since it is the
-  one thing an agent would otherwise try to solve with a browser.
+  test that builds the CLI, spawns `next dev` on a spare port with its own dist
+  directory and a temp database, and approves the device code through a test-utils
+  instance that shares the server's secret. That approval step is the trick the
+  prompt hands the agent, since it is the one thing an agent would otherwise try to
+  solve with a browser. Expect extra assertions the prompt never asked for, such as
+  the file permissions and the token never appearing in the CLI's output.
+- **A flaky test is a bug report.** The `todos` table stores `created_at` in whole
+  seconds, and the list orders by that column with the id as the tie-breaker. Two
+  items added in the same second sort by random UUID. The agent's test asserted
+  insertion order, the agent's run happened to fall on the right side of the coin,
+  and yours may not. Prompt 16.2 says "fix the root cause" and "the order must mean
+  something", because without those words the cheap fix is to sort the expected
+  array in the test. Expect a new column that counts inserts, a unique index on it,
+  and a migration the agent writes by hand, because SQLite can't add a required
+  column to a table with rows in it and drizzle-kit's generated version fails on
+  that. Expect one more finding in the summary: the existing unit test for the list
+  sorted the titles before comparing, which is how the bug survived session 2. The
+  agent removes that sort and adds a test that inserts five items in a burst. Three
+  minutes and a dollar.
 - **The skill is thin on purpose.** The CLI's help is the documentation, and the skill
-  says when to use it and what to do when login is missing. Open the skill, and if it
-  repeats the help text, cut it. The subagent test at the end of prompt 16.2 is the
-  eval: an agent that has never seen the CLI, given the skill and a shell, should run
-  `ai-tutor add` and `ai-tutor list` and nothing else.
+  says when to use it and what to do when login is missing. Expect about 40 lines:
+  a pushy description so the skill fires on "my list" and "remind me to", a rule that
+  the help text wins over the skill when they disagree, the login paragraph, and one
+  example per command. Open it, and if it repeats the help text, cut it. Expect the
+  login paragraph to say that the login is the user's consent and the agent must not
+  work around it. That sentence is the whole security model of the CLI door, and the
+  agent wrote it without being asked.
+- **The subagent is the eval.** An agent that has never seen the CLI, given the skill
+  and a shell, runs `--help`, then `whoami`, checks for a duplicate with a query,
+  adds the item, and filters the open ones itself. Expect it to hand back feedback
+  on the skill as well, since skill-creator asks for that, and expect at least one
+  claim in the skill to be wrong on first use, such as what `add` prints. The agent
+  fixes the skill from that feedback in the same run. A skill's first application is
+  its first test, the same lesson as the design skill in step 13.
 
 **Verify:** `npm test` from the root runs the app tests and the CLI's end-to-end
-test, `npx ai-tutor list` shows the list, the skill sits under `.claude/skills/`, and
-the subagent used the CLI. Commit and push.
+test, twice in a row, `npx ai-tutor list` shows the list, the skill sits under
+`.claude/skills/` with a copy under `.agents/skills/`, and the subagent used the CLI.
+Commit and push.
 
 ## Step 17: the same CLI as a local MCP server
 
@@ -550,8 +623,25 @@ claude --model claude-opus-5 --dangerously-skip-permissions -p "<prompt>"
 ```
 
 Prompt 17.2 needs `claude` on the path and an account, since the agent runs
-`claude -p` itself. Prompt 16.2's subagent test needs a login from `npx ai-tutor
-login` on the machine first.
+`claude -p` itself. Prompt 16.3's subagent test needs a login from `npx ai-tutor
+login` on the machine first, and that login can be approved from a shell. Start
+`npx ai-tutor login` in the background, read the code it prints, and with the dev
+server running:
+
+```bash
+CODE=XXXX-XXXX
+curl -s -c cj -o /dev/null http://localhost:3000/api/auth/sign-in/email \
+  -H 'content-type: application/json' -H 'Origin: http://localhost:3000' \
+  -d '{"email":"you@example.com","password":"your-password"}'
+curl -s -b cj -o /dev/null "http://localhost:3000/api/auth/device?user_code=$CODE"
+curl -s -b cj -X POST http://localhost:3000/api/auth/device/approve \
+  -H 'content-type: application/json' -H 'Origin: http://localhost:3000' \
+  -d "{\"userCode\":\"$CODE\"}"
+```
+
+The `GET` claims the code for the signed-in session, and the approve endpoint refuses
+a code nobody claimed. The `Origin` header is there because Better Auth rejects a
+cookie-authenticated `POST` without one.
 
 The OAuth login in step 18 can't run headless. Claude Code has no browser in `-p`
 mode, but `claude mcp login ai-tutor-remote --no-browser` prints the URL, and once
