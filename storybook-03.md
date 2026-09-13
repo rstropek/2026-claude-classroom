@@ -309,22 +309,9 @@ went, then show it. AGENTS.md names the directory, and on macOS and Linux it is
 ls -la ~/.config/ai-tutor/
 ```
 
-### The test that passes when it feels like it
-
-Run `npm test` twice. In one of the runs the CLI test probably fails, with the two
-items in the list swapped. That is a real bug, and the agent's own run had no way to
-see it, since the test passed for the agent. Hand it over:
+With the CLI working, add the skill:
 
 > **Prompt 16.2**
->
-> The new CLI integration test fails in some runs: the two items in the list come back
-> in the wrong order. Find the root cause and fix it there rather than by loosening
-> the test; the list order must be stable and mean something to a user. Suite green,
-> AGENTS.md current.
-
-Then the skill:
-
-> **Prompt 16.3**
 >
 > Use the skill-creator skill to write a project skill `ai-tutor-cli` that teaches an
 > agent when and how to use our CLI: the situations it's for, the login prerequisite
@@ -376,19 +363,6 @@ Then the skill:
   prompt hands the agent, since it is the one thing an agent would otherwise try to
   solve with a browser. Expect extra assertions the prompt never asked for, such as
   the file permissions and the token never appearing in the CLI's output.
-- **A flaky test is a bug report.** The `todos` table stores `created_at` in whole
-  seconds, and the list orders by that column with the id as the tie-breaker. Two
-  items added in the same second sort by random UUID. The agent's test asserted
-  insertion order, the agent's run happened to fall on the right side of the coin,
-  and yours may not. Prompt 16.2 says "fix the root cause" and "the order must mean
-  something", because without those words the cheap fix is to sort the expected
-  array in the test. Expect a new column that counts inserts, a unique index on it,
-  and a migration the agent writes by hand, because SQLite can't add a required
-  column to a table with rows in it and drizzle-kit's generated version fails on
-  that. Expect one more finding in the summary: the existing unit test for the list
-  sorted the titles before comparing, which is how the bug survived session 2. The
-  agent removes that sort and adds a test that inserts five items in a burst. Three
-  minutes and a dollar.
 - **The skill is thin on purpose.** The CLI's help is the documentation, and the skill
   says when to use it and what to do when login is missing. Expect about 40 lines:
   a pushy description so the skill fires on "my list" and "remind me to", a rule that
@@ -677,7 +651,7 @@ claude --model claude-opus-5 --dangerously-skip-permissions -p "<prompt>"
 ```
 
 Prompt 17.2 needs `claude` on the path and an account, since the agent runs
-`claude -p` itself. Prompt 16.3's subagent test needs a login from `npx ai-tutor
+`claude -p` itself. Prompt 16.2's subagent test needs a login from `npx ai-tutor
 login` on the machine first, and that login can be approved from a shell. Start
 `npx ai-tutor login` in the background, read the code it prints, and with the dev
 server running:
@@ -705,7 +679,7 @@ that port. A Playwright script that signs in and clicks Allow does the job witho
 personal browser. Once the login is done, later `-p` runs reuse the stored token, and
 `--allowedTools "mcp__ai-tutor-remote__*"` grants the remote tools.
 
-The whole day's prompts cost about 25 dollars and 50 minutes of agent time on Opus 5,
+The whole day's prompts cost about 24 dollars and 45 minutes of agent time on Opus 5,
 with prompts 16.1 and 18.1 taking three quarters of both.
 
 In the live session, use the interactive TUI instead. Tool calls, doc fetches, diffs,
