@@ -440,10 +440,21 @@ git switch -c mcp-stdio
 > follow the guide word for word to register the server there, and run `claude -p`
 > in that directory with a question about the todo list, with the todo tools allowed
 > and nothing else. Fix the guide where it was wrong, and tell me what the run
-> answered.
+> answered. One more thing from your last summary: cli/node_modules is tracked in
+> git; fix .gitignore so no workspace's node_modules is tracked and untrack what
+> slipped in.
 
 Then register the server for this repo the way the guide says, with the project scope
-so `.mcp.json` lands in the diff, and use it from a fresh `claude` session:
+so `.mcp.json` lands in the diff:
+
+```bash
+claude mcp add --scope project ai-tutor -- npx ai-tutor mcp --stdio
+claude mcp list
+```
+
+The list shows the server as pending approval, because a project-scoped server is
+something a repo can push onto your machine, and Claude Code asks once per checkout.
+Start `claude`, approve it, and ask:
 
 ```text
 > what's on my todo list?
@@ -466,30 +477,44 @@ Back in Claude Code:
 > what's on my todo list now?
 ```
 
-Watch what the model does with a tool result that contains an instruction. Most runs
-list the items and mention the odd one. Some runs hesitate, and a run that obeys is
-the best outcome for the lesson.
+Watch what the model does with a tool result that contains an instruction. Expect the
+model to list all four items, to point out that the third one is written as an
+instruction, to say it stored it as a regular todo and didn't follow it, and to
+suggest checking who has write access to the list. Some runs hesitate, and a run that
+answers BLOCKED is the best outcome for the lesson.
 
 **Teaching points**
 
 - **Same functions, third protocol.** The stdio server wraps the CLI's API client, so
   the tools do what the commands do, and the login comes from the same file. Expect
-  the agent to spend most of its time on the schema side, turning the shared zod
-  contract into tool input schemas, and to reuse the API client untouched.
+  the agent to pull the todo calls out of the command handlers into a module both
+  sides share, and to add `describe()` texts to the contract's fields, because a
+  tool's input schema is the only documentation the model gets. Expect it to find
+  the current SDK on its own, and note that the package it picks is the v2 line,
+  which has a different name than the v1 package most training data knows.
+  Budget seven minutes and four dollars.
 - **stdout is the wire.** An MCP server over stdio speaks JSON-RPC on stdout, so a
-  stray `console.log` corrupts the protocol. The prompt says so in six words, and the
-  test catches a violation, because the client SDK fails to parse the stream. Ask the
-  agent where its logging goes.
+  stray `console.log` corrupts the protocol. The prompt says so in six words. Expect
+  the agent to discover that the client SDK skips lines it can't parse, so a naive
+  test passes with a stray log line in place, and expect it to tap the child's
+  stdout directly and require every line to be protocol. Ask the agent how it
+  proved the test can fail.
+- **Read the summary for what the agent didn't fix.** Expect a line at the end
+  saying that `cli/node_modules` is tracked in git, because the scaffold's ignore
+  rule covers only the root. The agent noticed, reported, and left it alone, which
+  is the right call for something outside the prompt. Prompt 17.2 picks it up.
 - **The agent writes the guide and then follows it.** Prompt 17.2 makes Claude Code
   the first user of docs/mcp.md, in a directory where nothing from this repo is on the
-  path. Expect the first draft of the guide to assume `npx ai-tutor` works everywhere,
-  and expect the verification run to find out that outside the repo it needs an
-  absolute path or `npm link`. A guide the author has followed is a different
-  document from a guide the author has written.
+  path. Expect the registration steps to hold, since the agent tried them with a
+  temporary config directory during prompt 17.1, and expect the claims around them
+  to be where the errors sit: what `claude mcp get` prints, and which error message a
+  wrong server URL produces first. A guide the author has followed is a different
+  document from a guide the author has written. Two minutes and under a dollar.
 - **`claude -p` is the eval.** Non-interactive Claude Code loads the project's
-  `.mcp.json` without a prompt, and `--allowedTools "mcp__<server>__*"` grants the
-  tools. That is the whole harness for testing an MCP server from the outside, and it
-  costs one API call.
+  `.mcp.json` without a prompt, and `--allowedTools "mcp__ai-tutor__*"` grants the
+  tools. Expect the agent to add `--tools ""` so the session has no built-in tools
+  at all, and to read the run's tool list to prove it. That is the whole harness for
+  testing an MCP server from the outside, and it costs one API call.
 - **Tool results are text to the model.** The todo title is data in SQLite, a string
   in the API response, and a sentence in the model's context once the tool returns.
   Nothing in the pipeline marks it as untrusted. Claude Code's own defenses and the
