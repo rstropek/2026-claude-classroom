@@ -501,8 +501,8 @@ answers BLOCKED is the best outcome for the lesson.
   proved the test can fail.
 - **Read the summary for what the agent didn't fix.** Expect a line at the end
   saying that `cli/node_modules` is tracked in git, because the scaffold's ignore
-  rule covers only the root. The agent noticed, reported, and left it alone, which
-  is the right call for something outside the prompt. Prompt 17.2 picks it up.
+  rule covers only the root. The agent noticed and reported it, and left the fix
+  alone, which is the right call for something outside the prompt. Prompt 17.2 picks it up.
 - **The agent writes the guide and then follows it.** Prompt 17.2 makes Claude Code
   the first user of docs/mcp.md, in a directory where nothing from this repo is on the
   path. Expect the registration steps to hold, since the agent tried them with a
@@ -559,16 +559,23 @@ git switch -c mcp-http
 > https://code.claude.com/docs/en/mcp.md for what Claude Code expects from a remote
 > server. Suite green, build green, AGENTS.md current.
 
+This is the most expensive run of the day. Budget 15 minutes and about 11 dollars,
+and have the result branch ready, because the run touches auth, the contract, both
+MCP servers, and the docs.
+
 Then connect Claude Code, with `npm run dev` running:
 
 ```bash
 claude mcp add --transport http ai-tutor-remote http://localhost:3000/api/mcp
+claude mcp list
 claude
 ```
 
-In the session, `/mcp` shows the server as needing authentication. Pick it, choose
-Authenticate, and the browser opens the app: sign in if the session is gone, approve
-the consent page, and the terminal reports success. Then:
+The list shows the server as needing authentication. In the session, `/mcp` shows
+the same. Pick it, choose Authenticate, and the browser opens the app: sign in if the
+session is gone, and read the consent page before you approve. It names the client
+by its metadata URL, shows where the browser returns to, and lists what the token may
+do. Allow, and the terminal reports success. Then:
 
 ```text
 > add "review the consent page" to my list
@@ -581,33 +588,55 @@ token the CLI would recognize.
 
 - **The app plays both OAuth roles.** It is the resource server that guards
   `/api/mcp` and the authorization server that signs the access tokens, and Better
-  Auth's MCP plugin covers both with the JWT plugin underneath for the keys. Expect
-  the diff to carry a consent page and a handful of `.well-known` documents, and
-  little else on the auth side.
+  Auth's MCP plugin covers both, with the JWT plugin underneath for the keys and the
+  CIMD plugin for clients that identify by URL. Expect the diff to carry a consent
+  page, a migration for the OAuth tables, and two small routes under `.well-known`,
+  because Better Auth serves the discovery documents at paths outside `/api/auth`
+  and something has to pass those requests on.
 - **Discovery is a chain the client walks by itself.** Claude Code calls `/api/mcp`,
   gets a 401 with a `WWW-Authenticate` header that names the protected resource
   metadata, reads the authorization server URL from it, and reads the endpoints from
   the server metadata. That is why the prompt asks for tests of the discovery
   documents: a wrong URL in one of them fails silently in the browser and loudly in a
-  test. Watch the dev server log during the login and count the requests.
+  test. Run the `curl -i` from step 14 against `/api/mcp` with `-X POST` and read the
+  header out.
 - **Client ID Metadata Documents replace registration.** The client identifies itself
   with a URL, and the authorization server fetches the metadata from there. There is
   no registration endpoint and no client secret, so nothing needs configuring
-  before Claude Code can connect. Ask the agent what `client_id` arrived at the
-  consent page, and it is a URL.
+  before Claude Code can connect. The consent page shows the URL that arrived as
+  `client_id`, and it points at claude.ai. That is also the one network dependency
+  of the step: the app has to reach claude.ai over HTTPS to fetch that document, so
+  a room without internet gets no consent page.
+- **The agent runs the flow before you do.** Expect the summary to say that the agent
+  drove the whole login itself with Claude Code's real metadata URL, from
+  authorization through consent to a tool call, with a script in place of the
+  browser. It can't run the interactive `/mcp` flow, and it says so. Read that
+  limits list. It also says that a valid-token unit test doesn't exist, because
+  verifying a token needs the running app to serve its own keys, so the end-to-end
+  run is the only proof, and that a user who signs up in the middle of the login
+  lands on the chat page and has to start over.
 - **Consent is where the user decides.** The consent page is the only screen in the
   whole flow that the app owns, and it is where a student sees which client asks for
-  what. Read it as the diff, since that page is product, not plumbing.
+  what. Read it as the diff, since that page is product, not plumbing. Expect a
+  sentence on it telling the user to allow only if they started the connection
+  themselves, which the prompt never asked for.
+- **A bug the prompt never mentioned.** Expect the agent to report a Better Auth
+  startup race it hit during its own build: when several processes initialize auth
+  on a fresh database at once, all but one fail, because Drizzle wraps the SQLite
+  error in a way Better Auth doesn't recognize. Expect a workaround in the auth
+  options and a regression test that fails without it. Whether the workaround
+  belongs in this repo or in a bug report upstream is a good question for the room.
 - **The shared contract has three consumers now.** The stdio server and the HTTP
   server import the same tool definitions from the contract workspace, and the REST
-  API imports the same request shapes. Expect the agent to lift the tool names and
-  descriptions into the contract in this step, since step 17 left them in the CLI.
-  That move is the reason the prompt says "so the two can't drift" instead of "reuse
-  the code".
+  API imports the same request shapes. Expect the agent to lift the tool names,
+  descriptions, and schemas into the contract in this step, since step 17 left them
+  in the CLI. That move is the reason the prompt says "so the two can't drift"
+  instead of "reuse the code".
 - **The user id is a claim, not a parameter.** Same rule as steps 7 and 11: identity
   comes from something the server verified, here the `sub` of the access token. The
   HTTP server takes it from the verified token and hands it to the same functions
-  the tutor's tools use.
+  the tutor's tools use, and a todo id that belongs to another user comes back as
+  not found.
 - **Three doors, one table.** The CLI is cheapest and needs a shell. The stdio server
   gives typed tools and needs a local install plus the CLI's login. The remote server
   needs nothing on the client machine, and it costs an OAuth setup and a consent page.
@@ -668,9 +697,16 @@ The `GET` claims the code for the signed-in session, and the approve endpoint re
 a code nobody claimed. The `Origin` header is there because Better Auth rejects a
 cookie-authenticated `POST` without one.
 
-The OAuth login in step 18 can't run headless. Claude Code has no browser in `-p`
-mode, but `claude mcp login ai-tutor-remote --no-browser` prints the URL, and once
-the login is done in a browser, later `-p` runs reuse the stored token.
+The OAuth login in step 18 can't run inside `-p`, since Claude Code has no browser
+there. Run `claude mcp login ai-tutor-remote --no-browser` in a real terminal instead.
+It prints the authorize URL and waits for the callback on a local port, and the
+browser that opens the URL has to run on the same machine, so the callback reaches
+that port. A Playwright script that signs in and clicks Allow does the job without a
+personal browser. Once the login is done, later `-p` runs reuse the stored token, and
+`--allowedTools "mcp__ai-tutor-remote__*"` grants the remote tools.
+
+The whole day's prompts cost about 25 dollars and 50 minutes of agent time on Opus 5,
+with prompts 16.1 and 18.1 taking three quarters of both.
 
 In the live session, use the interactive TUI instead. Tool calls, doc fetches, diffs,
 and test runs scrolling past are what the audience learns from.
@@ -683,7 +719,15 @@ and test runs scrolling past are what the audience learns from.
 - **Step 18 depends on three moving parts.** Better Auth's MCP plugin, the MCP
   TypeScript SDK, and Claude Code's OAuth client all changed within the last months.
   If the login fails live, `claude mcp list` and the dev server log tell you which
-  hop broke, and the result branch carries a version set that worked.
+  hop broke, and the result branch carries a version set that worked: Better Auth
+  1.7.4 with `@better-auth/mcp`, `@better-auth/cimd`, and `@better-auth/oauth-provider`
+  at the same version, `@modelcontextprotocol/server` and `client` 2.0.0, commander
+  15, and Claude Code 2.1.270. If a fresh major lands the night before, pin these in
+  the prompt.
+- **Step 18 needs the internet.** The consent page appears only after the app has
+  fetched Claude Code's metadata document from claude.ai. On a venue network that
+  blocks it, the login fails at the consent step, and the fix is a phone hotspot,
+  not a code change.
 - **Ports.** The CLI's end-to-end test and the MCP tests start their own server. If a
   test hangs, a dev server from an earlier step is holding the port it wants, and
   AGENTS.md names the port.
