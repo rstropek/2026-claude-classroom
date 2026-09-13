@@ -241,8 +241,6 @@ one is a shell.
   comment and the AGENTS.md line about the write path. Memory that describes the
   old world is worse than no memory.
 
-Budget five minutes and about two dollars for this prompt.
-
 **Verify:** `npm test` is green with the new 401 cases, the curl round trip works, and
 the sidebar shows the item. Commit and push.
 
@@ -278,10 +276,9 @@ git switch -c todo-cli
 > https://better-auth.com/llms.txt. Suite green from the root, biome clean, AGENTS.md
 > current.
 
-This is the longest run of the day. Budget 15 minutes and about six dollars, and use
-the time for the teaching points below, because the agent has a lot to show: a
-workspace move, a schema migration for the device codes, a new page, and a test that
-starts a server.
+This is the longest run of the day, and the agent has a lot to show: a workspace
+move, a schema migration for the device codes, a new page, and a test that starts a
+server. Use the wait for the teaching points below.
 
 When the run finishes, use the CLI yourself, with `npm run dev` still running:
 
@@ -466,7 +463,6 @@ answers BLOCKED is the best outcome for the lesson.
   tool's input schema is the only documentation the model gets. Expect it to find
   the current SDK on its own, and note that the package it picks is the v2 line,
   which has a different name than the v1 package most training data knows.
-  Budget seven minutes and four dollars.
 - **stdout is the wire.** An MCP server over stdio speaks JSON-RPC on stdout, so a
   stray `console.log` corrupts the protocol. The prompt says so in six words. Expect
   the agent to discover that the client SDK skips lines it can't parse, so a naive
@@ -483,7 +479,7 @@ answers BLOCKED is the best outcome for the lesson.
   temporary config directory during prompt 17.1, and expect the claims around them
   to be where the errors sit: what `claude mcp get` prints, and which error message a
   wrong server URL produces first. A guide the author has followed is a different
-  document from a guide the author has written. Two minutes and under a dollar.
+  document from a guide the author has written.
 - **`claude -p` is the eval.** Non-interactive Claude Code loads the project's
   `.mcp.json` without a prompt, and `--allowedTools "mcp__ai-tutor__*"` grants the
   tools. Expect the agent to add `--tools ""` so the session has no built-in tools
@@ -533,9 +529,8 @@ git switch -c mcp-http
 > https://code.claude.com/docs/en/mcp.md for what Claude Code expects from a remote
 > server. Suite green, build green, AGENTS.md current.
 
-This is the most expensive run of the day. Budget 15 minutes and about 11 dollars,
-and have the result branch ready, because the run touches auth, the contract, both
-MCP servers, and the docs.
+This is the biggest run of the day, so have the result branch ready, because it
+touches auth, the contract, both MCP servers, and the docs.
 
 Then connect Claude Code, with `npm run dev` running:
 
@@ -678,9 +673,6 @@ browser that opens the URL has to run on the same machine, so the callback reach
 that port. A Playwright script that signs in and clicks Allow does the job without a
 personal browser. Once the login is done, later `-p` runs reuse the stored token, and
 `--allowedTools "mcp__ai-tutor-remote__*"` grants the remote tools.
-
-The whole day's prompts cost about 24 dollars and 45 minutes of agent time on Opus 5,
-with prompts 16.1 and 18.1 taking three quarters of both.
 
 In the live session, use the interactive TUI instead. Tool calls, doc fetches, diffs,
 and test runs scrolling past are what the audience learns from.
