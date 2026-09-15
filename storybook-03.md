@@ -2,6 +2,16 @@
 
 **Classroom: Agentische Entwicklung mit Claude Code, Mastra & CopilotKit, Session 3**
 
+## News - GPT-6 Astra is in ChatGPT
+
+Demo: Computer Use
+
+```txt
+Please use my locally installed Excel to setup a simple household budget. It should become part of a beginner training for how to use the sum formula. Make some screenshots for a typical training and use simple annotations (e.g. red borders, arrows). Use temporary Python script to draw the annotation. Write a training.md file with embedded screenshots in the CWD @Computer
+```
+
+## Live-Coding Script for Session 3
+
 This is the live-coding script for session 3. Each step gives you a **Goal**, the
 **Prompt** to hand Claude Code, **Teaching points** to narrate while the agent works, and
 a **Verify** checklist. The steps keep counting from session 2, so today starts at step
@@ -40,27 +50,7 @@ The browser is the only client the app has. Today it gets three more, and none o
 is a browser. The svgbob source is in `images/agent-doors.bob` and the render in
 `images/agent-doors.svg`:
 
-```
-                                     +----------------------------------------+
-+--------------------+   "AG-UI"     |              "Next.js 16"              |
-|      Browser       +-------------->| Better Auth "(cookies + tokens)"       |
-|    CopilotChat     |               | chat route "->" Mastra tutor           |
-+--------------------+               |                                        |
-                                     | "/api/todos"  REST, "Bearer token"     |
-+--------------------+   "REST"      |                                        |
-|   CLI "ai-tutor"   +-------------->| "/api/mcp"  "MCP over HTTP, OAuth"     |
-| login, whoami      |               +-------------------+--------------------+
-| add, list, done    |                                   ^
-| "mcp --stdio"      |                                   |
-+----^----------^----+                                   |
-     |          |                                        |
-   Bash    "MCP stdio"                            "MCP over HTTP"
-     |          |                                        |
-+----+----------+----------------------------------------+----+
-|                        Claude Code                          |
-|   "ai-tutor skill"    "|"    ".mcp.json"    "|"    OAuth    |
-+-------------------------------------------------------------+
-```
+![Session 3 Architecture](./session-3-overview.svg)
 
 - A **REST API** for todos under `/api/todos`, protected by bearer tokens that Better
   Auth issues and verifies. No page in the app calls it. It exists for the two clients
@@ -273,8 +263,8 @@ git switch -c todo-cli
 > spare port with a temporary database and a redirected config directory: login (the
 > test approves the device code through Better Auth's test utils, no browser), whoami,
 > add, list, done, logout, and whoami again fails. Better Auth's device flow is at
-> https://better-auth.com/llms.txt. Suite green from the root, biome clean, AGENTS.md
-> current.
+> https://better-auth.com/llms.txt. Suite green from the root, biome clean, no
+> workspace's node_modules or build output tracked in git, AGENTS.md current.
 
 This is the longest run of the day, and the agent has a lot to show: a workspace
 move, a schema migration for the device codes, a new page, and a test that starts a
@@ -379,7 +369,9 @@ With the CLI working, add the skill:
 **Verify:** `npm test` from the root runs the app tests and the CLI's end-to-end
 test, twice in a row, `npx ai-tutor list` shows the list, the skill sits under
 `.claude/skills/` with a copy under `.agents/skills/`, and the subagent used the CLI.
-Commit and push.
+Before you commit, run `git status` and check that no `node_modules` directory shows
+up. The root `.gitignore` from the scaffold ignores `/node_modules` only at the root,
+so a new workspace is the moment its own `node_modules` slips in. Commit and push.
 
 ## Step 17: the same CLI as a local MCP server
 
@@ -412,8 +404,7 @@ git switch -c mcp-stdio
 > follow the guide word for word to register the server there, and run `claude -p`
 > in that directory with a question about the todo list, with the todo tools allowed
 > and nothing else. Fix the guide where it was wrong, and tell me what the run
-> answered. One more thing: cli/node_modules is tracked in git; fix .gitignore so no
-> workspace's node_modules is tracked and untrack what slipped in.
+> answered.
 
 Then register the server for this repo the way the guide says, with the project scope
 so `.mcp.json` lands in the diff:
@@ -469,10 +460,6 @@ answers BLOCKED is the best outcome for the lesson.
   test passes with a stray log line in place, and expect it to tap the child's
   stdout directly and require every line to be protocol. Ask the agent how it
   proved the test can fail.
-- **Read the summary for what the agent didn't fix.** Expect a line at the end
-  saying that `cli/node_modules` is tracked in git, because the scaffold's ignore
-  rule covers only the root. The agent noticed and reported it, and left the fix
-  alone, which is the right call for something outside the prompt. Prompt 17.2 picks it up.
 - **The agent writes the guide and then follows it.** Prompt 17.2 makes Claude Code
   the first user of docs/mcp.md, in a directory where nothing from this repo is on the
   path. Expect the registration steps to hold, since the agent tried them with a

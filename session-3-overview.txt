@@ -1,0 +1,19 @@
+                                     +----------------------------------------+
++--------------------+   "AG-UI"     |              "Next.js 16"              |
+|      Browser       +-------------->| Better Auth "(cookies + tokens)"       |
+|    CopilotChat     |               | chat route "->" Mastra tutor           |
++--------------------+               |                                        |
+                                     | "/api/todos"  REST, "Bearer token"     |
++--------------------+   "REST"      |                                        |
+|   CLI "ai-tutor"   +-------------->| "/api/mcp"  "MCP over HTTP, OAuth"     |
+| login, whoami      |               +-------------------+--------------------+
+| add, list, done    |                                   ^
+| "mcp --stdio"      |                                   |
++----^----------^----+                                   |
+     |          |                                        |
+   Bash    "MCP stdio"                            "MCP over HTTP"
+     |          |                                        |
++----+----------+----------------------------------------+----+
+|                        Claude Code                          |
+|   "ai-tutor skill"    "|"    ".mcp.json"    "|"    OAuth    |
++-------------------------------------------------------------+

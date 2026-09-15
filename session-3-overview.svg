@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" class="svgbob"><style>.svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
+    stroke: black;
+    stroke-width: 2;
+    stroke-opacity: 1;
+    fill-opacity: 1;
+    stroke-linecap: round;
+    stroke-linejoin: miter;
+}
+.svgbob text {
+    white-space: pre;
+    fill: black;
+    font-family: Iosevka Fixed, monospace;
+    font-size: 14px;
+}
+.svgbob rect.backdrop {
+    stroke: none;
+    fill: white;
+}
+.svgbob .broken {
+    stroke-dasharray: 8;
+}
+.svgbob .filled {
+    fill: black;
+}
+.svgbob .bg_filled {
+    fill: white;
+    stroke-width: 1;
+}
+.svgbob .nofill {
+    fill: white;
+}
+.svgbob .end_marked_arrow {
+    marker-end: url(#arrow);
+}
+.svgbob .start_marked_arrow {
+    marker-start: url(#arrow);
+}
+.svgbob .end_marked_diamond {
+    marker-end: url(#diamond);
+}
+.svgbob .start_marked_diamond {
+    marker-start: url(#diamond);
+}
+.svgbob .end_marked_circle {
+    marker-end: url(#circle);
+}
+.svgbob .start_marked_circle {
+    marker-start: url(#circle);
+}
+.svgbob .end_marked_open_circle {
+    marker-end: url(#open_circle);
+}
+.svgbob .start_marked_open_circle {
+    marker-start: url(#open_circle);
+}
+.svgbob .end_marked_big_open_circle {
+    marker-end: url(#big_open_circle);
+}
+.svgbob .start_marked_big_open_circle {
+    marker-start: url(#big_open_circle);
+}<!--separator--></style><defs><marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,0 0,4 4,2 0,0"></polygon></marker><marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,2 2,0 4,2 2,4 0,2"></polygon></marker><marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><circle cx="4" cy="4" r="2" class="filled"></circle></marker><marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><circle cx="4" cy="4" r="2" class="bg_filled"></circle></marker><marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><circle cx="4" cy="4" r="3" class="bg_filled"></circle></marker></defs><rect class="backdrop" x="0" y="0" width="640" height="320"></rect><rect x="300" y="8" width="328" height="128" class="solid nofill" rx="0"></rect><text x="314" y="44" >Better</text><text x="370" y="44" >Auth</text><text x="314" y="60" >chat</text><text x="354" y="60" >route</text><text x="442" y="60" >Mastra</text><text x="498" y="60" >tutor</text><text x="426" y="92" >REST,</text><text x="418" y="28" >Next.js 16</text><text x="410" y="44" >(cookies + tokens)</text><text x="402" y="60" >-></text><text x="314" y="92" >/api/todos</text><text x="474" y="92" >Bearer token</text><text x="314" y="124" >/api/mcp</text><text x="410" y="124" >MCP over HTTP, OAuth</text><text x="58" y="44" >Browser</text><polygon points="288,36 296,40 288,44" class="filled"></polygon><text x="42" y="60" >CopilotChat</text><text x="34" y="124" >CLI</text><polygon points="288,116 296,120 288,124" class="filled"></polygon><text x="18" y="140" >login,</text><text x="74" y="140" >whoami</text><text x="18" y="156" >add,</text><text x="58" y="156" >list,</text><text x="106" y="156" >done</text><polygon points="40,188 44,176 48,188" class="filled"></polygon><line x1="44" y1="188" x2="44" y2="208" class="solid"></line><line x1="48" y1="184" x2="128" y2="184" class="solid"></line><polygon points="128,188 132,176 136,188" class="filled"></polygon><line x1="132" y1="188" x2="132" y2="208" class="solid"></line><text x="26" y="220" >Bash</text><text x="202" y="268" >Claude</text><text x="258" y="268" >Code</text><text x="426" y="284" >OAuth</text><polygon points="456,156 460,144 464,156" class="filled"></polygon><line x1="460" y1="156" x2="460" y2="208" class="solid"></line><text x="202" y="28" >AG-UI</text><text x="202" y="108" >REST</text><text x="66" y="124" >ai-tutor</text><text x="18" y="172" >mcp --stdio</text><text x="90" y="220" >MCP stdio</text><text x="402" y="220" >MCP over HTTP</text><text x="34" y="284" >ai-tutor skill</text><text x="194" y="284" >|</text><text x="250" y="284" >.mcp.json</text><text x="370" y="284" >|</text><g><line x1="4" y1="24" x2="172" y2="24" class="solid"></line><line x1="4" y1="24" x2="4" y2="72" class="solid"></line><line x1="172" y1="24" x2="172" y2="72" class="solid"></line><line x1="172" y1="40" x2="288" y2="40" class="solid"></line><line x1="4" y1="72" x2="172" y2="72" class="solid"></line></g><g><line x1="4" y1="104" x2="172" y2="104" class="solid"></line><line x1="4" y1="104" x2="4" y2="184" class="solid"></line><line x1="172" y1="104" x2="172" y2="184" class="solid"></line><line x1="172" y1="120" x2="288" y2="120" class="solid"></line><line x1="4" y1="184" x2="40" y2="184" class="solid"></line><line x1="136" y1="184" x2="172" y2="184" class="solid"></line></g><g><line x1="44" y1="224" x2="44" y2="248" class="solid"></line><line x1="132" y1="224" x2="132" y2="248" class="solid"></line><line x1="460" y1="224" x2="460" y2="248" class="solid"></line><line x1="4" y1="248" x2="500" y2="248" class="solid"></line><line x1="4" y1="248" x2="4" y2="296" class="solid"></line><line x1="500" y1="248" x2="500" y2="296" class="solid"></line><line x1="4" y1="296" x2="500" y2="296" class="solid"></line></g></svg>
