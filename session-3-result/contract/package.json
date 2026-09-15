@@ -1,0 +1,13 @@
+{
+  "name": "ai-tutor-contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zod wire contract of the ai-tutor todo API, shared by the web app and the CLI.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.2"
+  }
+}

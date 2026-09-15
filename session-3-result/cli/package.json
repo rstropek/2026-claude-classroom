@@ -1,0 +1,33 @@
+{
+  "name": "ai-tutor-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Command-line client for the ai-tutor todo API.",
+  "type": "module",
+  "bin": {
+    "ai-tutor": "bin/ai-tutor.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/ai-tutor.js --log-level=warning",
+    "prepare": "npm run build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "ai-tutor-contract": "0.1.0",
+    "better-auth": "^1.7.5",
+    "commander": "^15.0.0",
+    "zod": "^4.6.2"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.0.0",
+    "esbuild": "^0.28.2"
+  }
+}
