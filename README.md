@@ -1,66 +1,94 @@
 # Agentic development classroom
 
-This repository contains the teaching material for [Agentische Entwicklung - mit Claude Code, Mastra und CopilotKit zum eigenen KI-Chat-Agenten](https://heise-academy.de/kurs/classroom-agentische-entwicklung-mit-claude-code-mastra-u-0adbea#sessions), a five-session Heise Academy classroom taught by Rainer Stropek.
+This repository holds the teaching material for [Agentische Entwicklung - mit Claude Code, Mastra und CopilotKit zum eigenen KI-Chat-Agenten](https://heise-academy.de/kurs/classroom-agentische-entwicklung-mit-claude-code-mastra-u-0adbea#sessions), a five-session Heise Academy classroom taught by Rainer Stropek.
 
-The classroom follows one AI chat agent from its first Next.js project through tools, Model Context Protocol (MCP) integration, security, generative UI, and continuous integration and deployment (CI/CD). The code is the vehicle for learning how to use Claude Code as a coding agent across the editor, terminal, GitHub, and an automated delivery pipeline.
+The classroom follows one AI chat agent, `ai-tutor`, from its first Next.js project through tools, Model Context Protocol (MCP) integration, security, generative UI, and continuous integration and deployment (CI/CD). The app gives each lesson something real to build, and what you actually learn is how to use Claude Code as a coding agent in the editor, the terminal, GitHub, and an automated delivery pipeline.
 
-This repository currently contains the material for **Session 1: Claude Code einsetzen - Agenten-Landschaft verstehen und erstes Projekt aufsetzen**.
+Sessions 1 to 3 are in the repository. Sessions 4 and 5 will follow.
 
-## Session 1
+## Sessions
 
-Session 1 builds `ai-tutor`, a small tutoring chat in which each student has a private conversation and a todo list managed through agent tools. The application combines Next.js, Better Auth, SQLite with Drizzle, a Mastra agent, and CopilotKit over the AG-UI protocol.
+Each session has a storybook and a result folder. The storybook is the live-coding script: every step has a goal, the prompt given to Claude Code, teaching points, and a verification checklist. Step numbers keep counting across sessions. The result folder is the finished app at the end of that session, and it's the starting point for the next one.
 
-The main lesson is how to direct a coding agent. The storybook works through outcome-focused prompts, grounding in current documentation, project memory in `AGENTS.md`, reusable skills, and executable verification with Vitest and Playwright.
+| Session | Storybook | Steps | Result |
+|---|---|---|---|
+| 1 | [`storybook-01.md`](storybook-01.md) | 1 to 7 | [`session-1-result/`](session-1-result/) |
+| 2 | [`storybook-02.md`](storybook-02.md) | 8 to 13 | [`session-2-result/`](session-2-result/) |
+| 3 | [`storybook-03.md`](storybook-03.md) | 14 to 18 | [`session-3-result/`](session-3-result/) |
 
-Start with these two files:
+Students don't clone this repository to follow along. Sessions 2 and 3 each start from a separate starter repository that the storybook links to, [`2026-claude-classroom-2-starter`](https://github.com/rstropek/2026-claude-classroom-2-starter) and [`2026-claude-classroom-3-starter`](https://github.com/rstropek/2026-claude-classroom-3-starter).
 
-- [`storybook-01.md`](storybook-01.md) is the live-coding script. It contains each goal, the prompt given to Claude Code, teaching notes, and verification checks.
-- [`session-01/ai-tutor/README.md`](session-01/ai-tutor/README.md) documents the finished reference application, including its architecture, environment variables, commands, and tests.
+### Session 1: first project
 
-The root repository ignores `session-01/`. The reference application is a local artifact used to develop and verify the teaching script, rather than part of the published course-material history.
+Session 1 builds `ai-tutor`, a tutoring chat where each student has a private conversation. The stack is Next.js, Better Auth, SQLite with Drizzle, a Mastra agent, and CopilotKit over the AG-UI protocol. The lesson is how to direct one agent run. It covers outcome-focused prompts, grounding the agent in current documentation, project memory in `AGENTS.md`, reusable skills, and verification with Vitest and Playwright.
+
+### Session 2: working with an agent over time
+
+Session 2 continues in the existing repo. The tutor gets typed tools backed by a `todos` table, a read-only sidebar shows the list, and a design skill derived from heise.de restyles the app in two parallel worktrees. The teaching topics are plan mode, dependency upgrades with tests as the safety net, context hygiene, delegation to cheaper models, custom skills, and Git worktrees.
+
+[`conversation-sample-session-2.json`](conversation-sample-session-2.json) is a recorded sample conversation from this session.
+
+### Session 3: building for agents
+
+Session 3 gives the app three clients that aren't browsers. First comes a REST API with Better Auth bearer tokens, then a CLI with a device login and a skill that teaches agents to use it. That same CLI runs as a local MCP server, and the app finally exposes an MCP server over Streamable HTTP, protected by OAuth. A shared `contract` workspace holds the zod schemas that the server, the CLI, and the MCP tools all import.
+
+Session 3 also has a presentation on sandboxing:
+
+- [`session-3-presentation/`](session-3-presentation/) holds the slides, a zipped demo kit, and the unpacked demos. [`demos/README.md`](session-3-presentation/demos/README.md) explains how to prepare and run each sandbox demo.
+- [`session-3-overview.svg`](session-3-overview.svg) is the architecture diagram the storybook embeds, and `session-3-overview.txt` is its source.
 
 ## Repository layout
 
 ```text
-storybook-01.md        Session 1 source and single source of truth
-images/                Diagram sources and rendered diagrams
-_quarto.yml            PDF build configuration
-_style/                Quarto filters, theme, and LaTeX styling
-_output/               Rendered course material
-session-01/ai-tutor/   Finished Session 1 reference application (git-ignored)
+storybook-NN.md           Live-coding script per session, the single source of truth
+session-N-result/         Finished app at the end of session N
+session-3-presentation/   Session 3 slides and sandbox demos
+images/                   svgbob diagram sources (.bob) and rendered SVGs
+_quarto.yml               PDF build configuration
+_style/                   Quarto filters, theme, and LaTeX styling
+_output/                  Rendered PDFs
+.claude/skills/           Project skills for authoring the material (svgbob, writing-guide)
+claude-via-mitmproxy.sh   Runs one Claude Code prompt through a mitmproxy container
 ```
 
-Future sessions will follow the same naming scheme with `storybook-02.md`, `storybook-03.md`, and so on. Quarto discovers matching storybooks automatically.
+## Render the storybooks
 
-## Render the storybook
-
-Install [Quarto](https://quarto.org/) and a TeX distribution that provides XeLaTeX. From the repository root, render all available storybooks:
+Install [Quarto](https://quarto.org/) and a TeX distribution that provides XeLaTeX. From the repository root, render every storybook:
 
 ```bash
 quarto render
 ```
 
-To render Session 1 only:
+To render one session, name its file:
 
 ```bash
-quarto render storybook-01.md
+quarto render storybook-03.md
 ```
 
-Quarto writes the PDF to `_output/`. Keep lesson content in the plain Markdown storybook; `_quarto.yml` and `_style/` own the PDF presentation.
+Quarto writes the PDFs to `_output/`. The `storybook-*.md` glob in `_quarto.yml` picks up new sessions without a config change. Keep lesson content in plain Markdown in the storybook, because `_quarto.yml` and `_style/` own the PDF presentation.
 
-## Run the reference application
+`_output/` currently holds only `storybook-01.pdf`. Render again to get the PDFs for Sessions 2 and 3.
 
-The reference application requires Node.js 20.9 or newer and credentials for OpenRouter and Better Auth. Its own README has the setup steps:
+## Run a result app
+
+Each result app needs Node.js 20.9 or newer, an OpenRouter API key, and a Better Auth secret. Pick a session folder and run:
 
 ```bash
-cd session-01/ai-tutor
+cd session-2-result
 npm install
 cp .env.example .env
 npm run db:migrate
 npm run dev
 ```
 
-The app then runs at <http://localhost:3000>. The default test suites do not call a language model; `npm run test:e2e:llm` does and spends OpenRouter credit.
+Fill in `.env` before `db:migrate`. The app runs at <http://localhost:3000>.
+
+The result folders differ in a few ways:
+
+- `session-3-result/` has no `.env.example` or `.gitignore` in the repository. Its `AGENTS.md` lists the variables `.env` needs (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `OPENROUTER_API_KEY`), so create the file by hand.
+- The result READMEs are still the `create-next-app` default. Read each folder's `AGENTS.md` for the real architecture and commands.
+
+`npm test` runs the Vitest suite and `npm run test:e2e` runs Playwright. Neither calls a language model. Sessions 2 and 3 add `npm run test:e2e:llm`, which does call one and spends OpenRouter credit.
 
 ## Audience
 
