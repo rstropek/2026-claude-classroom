@@ -1,0 +1,13 @@
+      controlled               declarative               "open-ended"
+
++--------------------+    +--------------------+    +--------------------+
+| useRenderTool      |    | A2UI               |    | MCP Apps           |
+| since step 11      +--->| steps 20 to 22     +--->| later today        |
++--------------------+    +--------------------+    +--------------------+
+
+  The frontend owns         The agent sends a         The server ships
+  one component per         tree of parts from        HTML that runs in
+  tool.                     a catalog, as JSON.       a sandbox.
+
+  ---------------------------------------------------------------------->
+                     the agent gets more say over the UI
