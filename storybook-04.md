@@ -859,8 +859,19 @@ Now open the **Tools** tab once more. `submit_todo_form` is listed, marked
 `visibility: ["app"]`, and MCPJam lets you run it by hand anyway. Do that, and a to-do
 is saved. The flag asks the host to keep the tool away from the model, and the host
 decides whether to honor it. MCPJam's own switch is called "Respect tool visibility" and
-is on by default. It lives under **Connect**, the client card, the **Client** tab, then
+is on by default. It lives under **Connect**, the **Client** tab, the client card, then
 **Agent**, in the group "Agent tooling".
+
+Show both states. With the switch on, ask the model "Which tools do you have from
+ai-tutor? List only their names." and `submit_todo_form` is missing from the answer.
+Turn the switch off, click **Save client** at the top right, and start a new chat. The
+same question now lists all five tools, and "Call submit_todo_form with title Sneaky."
+saves a to-do. A flipped switch that you did not save is discarded without a word, and
+the model then does what it did in the on state: denied the form's tool, it reaches for
+`add_todo` and saves "Sneaky" anyway. That accident is worth keeping in the demo,
+because it shows that visibility hides one tool and leaves the data path open. Switch
+it back on and save again. The tool list at the left of the Playground shows all five
+tools with their visibility in both states, so take the model's answer as the proof.
 What actually keeps one student's list away from another is the OAuth token on the
 request and the per-user queries in `lib/todo-tools.ts`.
 
