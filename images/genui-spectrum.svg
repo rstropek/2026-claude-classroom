@@ -99,8 +99,10 @@
   <rect x="420" y="40" width="168" height="48" class="solid nofill" rx="0"></rect>
   <text x="434" y="60" >MCP</text>
   <text x="466" y="60" >Apps</text>
-  <text x="434" y="76" >later</text>
-  <text x="482" y="76" >today</text>
+  <text x="434" y="76" >steps</text>
+  <text x="482" y="76" >23</text>
+  <text x="506" y="76" >to</text>
+  <text x="530" y="76" >24</text>
   <text x="50" y="12" >controlled</text>
   <text x="250" y="12" >declarative</text>
   <text x="18" y="60" >useRenderTool</text>

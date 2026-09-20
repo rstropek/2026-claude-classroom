@@ -2,7 +2,7 @@
 
 +--------------------+    +--------------------+    +--------------------+
 | useRenderTool      |    | A2UI               |    | MCP Apps           |
-| since step 11      +--->| steps 20 to 22     +--->| later today        |
+| since step 11      +--->| steps 20 to 22     +--->| steps 23 to 24     |
 +--------------------+    +--------------------+    +--------------------+
 
   The frontend owns         The agent sends a         The server ships

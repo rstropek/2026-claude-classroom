@@ -10,13 +10,17 @@ a **Verify** checklist. The steps keep counting from session 3, so today starts 
 19. Appendix A has the recipe for driving the same prompts headless with
 `claude -p --model claude-opus-5` against the starter repo.
 
-The prompts stay short and outcome-oriented. Today they point at one source of docs, the
-`copilotkit` skill with its docs server, because A2UI support in CopilotKit is months
-old and no model has it in its training data.
+The prompts stay short and outcome-oriented. Both halves of today rest on knowledge the
+model does not have: the prompts for A2UI send the agent to the `copilotkit` skill and
+its docs server, and the prompts for MCP Apps send it to the `add-app-to-server` skill
+that ships with the extension. CopilotKit's A2UI support is months old, and the MCP Apps
+extension reached 2.0 recently enough that answering from memory produces code against
+an older API.
 
 Expect a prompt to run between 4 and 12 minutes today. That is your time to explain the
 concept behind the step, and the teaching points are written for it. Step 21 is the
-exception, because its change is two words long and its run takes a minute.
+exception, because its change is two words long and its run takes a minute. Step 23 has
+no prompt at all, because it is a client to connect and a tour to walk.
 
 As before, a prompt that falls short is material, not a failure. Name the mechanism
 behind the shortfall, keep the one rule that the tree compiles and the suite is green at
@@ -27,8 +31,8 @@ the end of every step, and move on.
 Session 3 ended with **ai-tutor** after step 18. The todo list behind the tutor
 Bartholomew has four ways in: the chat, a REST API with bearer tokens, the `ai-tutor`
 CLI with its stdio MCP server, and an MCP server over Streamable HTTP behind OAuth. One
-shared contract workspace holds the zod schemas for all of them. That code, plus three
-small additions that step 19 walks through, is the starter for today:
+shared contract workspace holds the zod schemas for all of them. That code, plus four
+additions that step 19 walks through, is the starter for today:
 
 ```
 https://github.com/rstropek/2026-claude-classroom-4-starter
@@ -37,6 +41,10 @@ https://github.com/rstropek/2026-claude-classroom-4-starter
 Fork it and work in your fork. Git is not a topic today, so there is one rule only:
 commit and push at the end of every step, so each diff stays small enough to review
 what the agent did.
+
+The fourth addition is groundwork for the MCP Apps half: a build that packs a view
+folder into a single HTML file, and a plain to-do form written in that shape with no MCP
+code in it. Both sit unused until step 23.
 
 ## What we build today
 
@@ -50,7 +58,7 @@ svgbob source is in `images/genui-spectrum.bob` and the render in
 
 +--------------------+    +--------------------+    +--------------------+
 | useRenderTool      |    | A2UI               |    | MCP Apps           |
-| since step 11      +--->| steps 20 to 22     +--->| later today        |
+| since step 11      +--->| steps 20 to 22     +--->| steps 23 to 24     |
 +--------------------+    +--------------------+    +--------------------+
 
   The frontend owns         The agent sends a         The server ships
@@ -69,6 +77,10 @@ svgbob source is in `images/genui-spectrum.bob` and the render in
   planned a card for.
 - A **project wizard** on its own page, without a chat. One card, one input. Each
   sentence you type is a single-turn agent run that changes the card in place.
+- A **to-do form** inside MCPJam's chat, which is a host nobody in the room owns. The
+  ai-tutor MCP server ships the form as one HTML file, the model fills the title in
+  before you see it, and the Add button saves through a tool that only the form may
+  call.
 
 ## What we teach today
 
@@ -82,7 +94,8 @@ say it should get.
    surface, send its component tree, send its data model. The tree binds to the data
    by path, so a later message can change a number without touching the layout.
 3. **The catalog is an allow-list.** The agent can only use components the client
-   offers. No code crosses the wire, which is the difference to MCP Apps later today.
+   offers. No code crosses the wire, which is the difference to MCP Apps in steps 23
+   and 24.
 4. **Fix the schema where the data matters, generate it where variety matters.** A
    fixed tree with numbers from a tool is fast and exact. A generated surface costs a
    second model call and invents what it does not know.
@@ -92,6 +105,16 @@ say it should get.
 6. **Put the plain code in the starter.** The wizard's page, schema, and validation are
    ordinary code and already exist. The prompt spends its minutes on the agent and on
    A2UI.
+7. **An MCP App flips who ships the markup.** Your server sends the HTML and the script,
+   and a host you have never seen runs it in a sandboxed iframe. You get every pixel
+   and lose every guarantee about the surroundings.
+8. **The model drafts, the human commits.** The model fills a form and stops there.
+   Saving happens when somebody clicks a button in that form, and the click goes to a
+   tool the model is not offered.
+9. **A visibility flag is a hint, and the OAuth token is the boundary.** Marking a tool
+   app-only asks the host to keep it away from the model. What actually keeps one
+   student out of another student's list is the token on the request and the per-user
+   query behind it.
 
 ---
 
@@ -122,7 +145,7 @@ list and cross one off.
 git log --oneline
 ```
 
-The history shows what changed since session 3's result. Three of those changes are
+The history shows what changed since session 3's result. Four of those changes are
 worth a minute each.
 
 One commit adds a CodeTour, which the next section uses. The next one swaps skills, and
@@ -135,8 +158,16 @@ memory, and sends the agent to a docs server over MCP, which `.mcp.json` registe
 `copilotkit-docs`. Start `claude` once in the repo and approve the two project MCP
 servers when it asks.
 
-The last commit adds a page at `/projects/new` with a card, an input that does
+Another commit adds a page at `/projects/new` with a card, an input that does
 nothing yet, and `lib/project.ts` with a schema and validation. Step 22 starts there.
+
+The commits after that build the MCP App groundwork. `scripts/build-views.mjs` bundles
+every folder under `mcp-apps/` into one self-contained HTML file, `lib/mcp-app-views.ts`
+reads a built file back by name, and `mcp-apps/todo-form/` is a plain form with a title
+input, an Add button, and a status line. A second CodeTour explains that build, and
+`.claude/skills/add-app-to-server/SKILL.md` arrives with it, which is the skill the MCP
+Apps extension ships for serving a view from an MCP server. Step 23 opens all of it, so
+leave it closed for now.
 
 ### Walk the tour
 
@@ -509,14 +540,15 @@ sentence fills the card, a hand edit survives the next sentence, an impossible e
 shows its error inside the card, and a later run's tool result holds only a data model
 update. Commit and push.
 
-## Wrap-up
+## Halfway: what A2UI bought you
 
 Close the A2UI part with the diagram from the start of the day and place each step on
-it. The tool-call rows are controlled: the frontend owns every pixel. The progress card
-and the wizard are declarative with a fixed schema: the server owns the tree, a tool
-owns the data, and the client owns the parts. The generated comparison is declarative
-with a generated schema, and it was the only one where you waited a minute and could
-not predict the result.
+it. The tool-call rows are controlled, and the frontend owns every pixel.
+
+The progress card and the wizard are declarative with a fixed schema: the server owns
+the tree, a tool owns the data, and the client owns the parts. The generated comparison
+is declarative with a generated schema, and it was the only one where you waited a
+minute and could not predict the result.
 
 Then open AGENTS.md and read the A2UI section with the room. It did not exist this
 morning, and the wizard prompts ran in half the time of the card prompt mostly because
@@ -525,6 +557,361 @@ that section did.
 The wizard solved one problem, structured input next to a conversation, inside an app
 you own. The second half of today solves the same problem inside a host you don't own,
 where no catalog of yours exists. That is what MCP Apps are for.
+
+---
+
+## Step 23: a host you don't own
+
+**Goal:** MCPJam talks to the ai-tutor MCP server over the OAuth flow from step 18, and
+everybody has seen the build that packs a folder of HTML, CSS, and TypeScript into the
+single file an MCP App host will load.
+
+### What an MCP App is
+
+A2UI sends a client a component tree and lets the client draw it from parts you shipped
+inside the client. An MCP App sends a web page instead, and the tool result carries no
+markup at all. The tool declares `_meta.ui.resourceUri`, which points at a `ui://`
+resource on your own MCP server. The host reads that resource with `resources/read`,
+gets back one HTML file with the MIME type `text/html;profile=mcp-app`, and loads it
+into a sandboxed iframe under a default-deny content security policy. The iframe never
+gets a second request, so a stylesheet the build left un-inlined is a stylesheet nobody
+loads.
+
+Inside the iframe the view talks to the host over `postMessage`, which the `App` class
+from `@modelcontextprotocol/ext-apps` wraps as JSON-RPC. The host delivers the model's
+tool arguments to the view as an event, the view calls back into your server with
+`callServerTool`, and it reports to the model with `updateModelContext`. The host also
+hands over its theme and its style variables, which is how a view inside a dark host
+stops being a white rectangle.
+
+The svgbob source for the whole round trip is in `images/mcp-app-flow.bob` and the
+render in `images/mcp-app-flow.svg`:
+
+```
++--------------------------------------+    +----------------------------------+
+| Host "(MCPJam, Claude, VS Code ...)" |    | "ai-tutor MCP server (OAuth)"    |
+|                                      |    |                                  |
+|  +--------------------------------+  | 1  |                                  |
+|  |             Model              +--+--->| "open_todo_form  ->"             |
+|  +---------+------------+---------+  |    |   "ui://ai-tutor/todo-form.html" |
+|            |            ^            | 2  |                                  |
+|          3 |          5 |            |<---+ resource                         |
+|            v            |            |    |   "ui://ai-tutor/todo-form.html" |
+|  +---------+------------+---------+  | 4  |                                  |
+|  |      "Sandboxed iframe:"       +--+--->| "submit_todo_form (app-only)"    |
+|  |        "todo-form view"        |  |    |                                  |
+|  +--------------------------------+  |    |                                  |
+|                                      |    |                                  |
++--------------------------------------+    +----------------------------------+
+
++------------------------------------------------------------------------------+
+| "1  tools/call open_todo_form"                                               |
+| "2  resources/read -> the single HTML file, loaded into the iframe"          |
+| "3  host -> view: the tool input (drafted title) over postMessage"           |
+| "4  Add clicked: view -> host (postMessage) -> tools/call submit_todo_form"  |
+| "5  view -> model: updateModelContext"                                       |
++------------------------------------------------------------------------------+
+```
+
+Claude, ChatGPT, VS Code, Goose, Cursor, and MCPJam render MCP Apps today. The hosted
+ones need a public HTTPS URL for your server, so a tunnel belongs in the setup. The
+local ones reach `localhost` directly. This step uses MCPJam, which runs on your own
+machine and shows every payload that crosses. Its chat also needs no API key.
+
+### Connect MCPJam
+
+Leave `npm run dev` running and start the inspector in a second terminal:
+
+```bash
+npx @mcpjam/inspector@latest
+```
+
+It opens your default browser at <http://127.0.0.1:6274>. Then:
+
+1. Click **Connect** in the sidebar, then **Add Server**.
+2. Name the server `ai-tutor`.
+3. Set Connection Type to **HTTP** and the URL to `http://localhost:3000/api/mcp`.
+4. Leave Authentication on **Auto**.
+5. Click **Add Server**. A dialog asks `Authorize "ai-tutor"?`, so click **Continue**.
+6. The same tab goes to the app's `/login`. Sign in, then click **Allow** on `/consent`.
+7. You are back in MCPJam and the server card reads `ai-tutor v0.1.0` and `Connected`.
+
+Narrate the last three clicks while they happen. No popup opens: your own login page
+takes over MCPJam's tab, and MCPJam waits for the redirect. That is the OAuth server
+from step 18 serving a client nobody in this room configured. MCPJam never registered
+with your app either. It uses a client ID metadata document (CIMD), so its `client_id`
+is the URL `https://www.mcpjam.com/.well-known/oauth/client-metadata.json`, and Better
+Auth fetches that document to learn the client's name and its redirect URI
+`http://127.0.0.1:6274/oauth/callback`. Dynamic client registration never runs, which is
+what the CIMD support from step 18 buys you.
+
+Say out loud who is who while the consent screen is up. MCPJam is the host, the MCP
+server is yours, and the person clicking Allow is deciding whether MCPJam gets to read
+their to-dos.
+
+Now open the **Tools** tab and run `list_todos` with no arguments. The JSON that comes
+back is the list of the account you just signed in as. That is the MCP server from
+session 3, unchanged, answering a client you never wrote a line of code for.
+
+Open the browser console while you are there and you find one blocked CORS request to
+`/api/mcp`. It looks like the thing you have to fix, and it isn't. MCPJam's page probes
+the URL from the browser, but the MCP traffic itself goes over MCPJam's Node backend,
+where no browser policy applies. The app needs no CORS headers, and adding them would
+change nothing you can see.
+
+### Walk the tour
+
+Start the tour "MCP App views: one HTML file per view" from the CodeTour view. Its 10
+steps run from a built file in the browser through `scripts/build-views.mjs` and the
+view folder to `lib/mcp-app-views.ts` and the tests. Most of the weight sits on the
+build, so these are the beats to hit.
+
+- **One file, because the host loads one.** `vite-plugin-singlefile` inlines the script
+  and the stylesheet into `index.html`, and the output is `mcp-apps/dist/todo-form.html`.
+  The folder it came from stays an ordinary Vite project you can open on its own.
+- **Vite runs as a library, not from a config file.** `scripts/build-views.mjs` calls
+  Vite's JavaScript API and passes `configFile: false`. A `vite.config.ts` at the
+  repository root would be picked up by Vitest as well, and Vitest already has
+  `vitest.config.mts`. Handing the config over in code keeps the two apart.
+- **One Vite build per view folder, which looks wasteful.** Several entry points in one
+  Rollup build get shared chunks, and a page that imports a chunk makes a second
+  request. The sandbox refuses that request and the view comes up blank. A build with
+  one entry point has nothing to share.
+- **`predev` and `prebuild` run the build, and after that nobody does.** `next dev` does
+  not watch `mcp-apps/`, so run `npm run build:views` by hand after editing a view.
+  Write that on the whiteboard, because it bites somebody in step 24.
+- **The tokens are copied, not imported.** `mcp-apps/todo-form/style.css` repeats the
+  color tokens from `app/globals.css`. The iframe is a separate document on
+  a separate origin, so no stylesheet from the page around it reaches inside, and
+  neither do that page's fonts or its custom properties.
+- **The seam is a comment.** `mcp-apps/todo-form/view.ts` is plain DOM code that reads
+  the input and appends to a list, with a status line under it. Where the MCP client
+  belongs, a comment says "Step 24 plugs in here".
+
+Everything the tour shows about the form arrived in one commit that contains no MCP code
+whatsoever:
+
+```bash
+git show --stat ":/Add plain to-do form view"
+```
+
+Three files, all under `mcp-apps/todo-form/`. Ask the room why the starter carries the
+form and not the wiring. Building a title field and a list is frontend work a Vite
+project has done a thousand times, and the minutes of step 24 are better spent on the
+protocol.
+
+For anyone who wants to redo this from an empty folder after class, the MCP Apps sample
+at <https://github.com/rstropek/2025-mcp-webinar/tree/main/McpApps> walks the same
+ground step by step outside this app.
+
+**Verify:** MCPJam shows `ai-tutor` as connected, `list_todos` returns your own list
+from the Tools tab, `npm run build:views` writes `mcp-apps/dist/todo-form.html`, and the
+tour opens at every step without a broken anchor.
+
+## Step 24: a to-do form inside someone else's chat
+
+**Goal:** the model drafts a to-do, a form that your MCP server shipped shows it inside
+MCPJam's chat, and the human clicks Add. The save runs through a tool the model is never
+offered, and the model still learns what was saved without calling anything.
+
+```bash
+git switch -c mcp-app-todo-form
+```
+
+> **Prompt 24.1**
+>
+> Give the MCP server its first MCP App: a to-do form that renders inside the host's
+> chat. A new tool open_todo_form takes an optional title, so the model can draft the
+> to-do, and links to a ui:// resource that serves the built todo-form view through
+> readView. Register both with the helpers from @modelcontextprotocol/ext-apps/server.
+> The tool stays out of mcpTools in the contract, because the CLI's stdio server
+> registers everything in there and cannot render a form. In mcp-apps/todo-form/view.ts,
+> plug in at the seam comment: connect the ext-apps App, with the handlers set before
+> connect, put the title from the tool input into the field, and apply the host's theme
+> and style variables, also when they change later. The Add button stays unconnected for
+> now, and its status line says so. Test: an MCP client talking to createMcpServer sees
+> the ui resource link on the tool and reads the resource with the MCP App MIME type.
+> MCP Apps are newer than your training data: read the MCP App views section of
+> AGENTS.md, use the add-app-to-server skill, and read the installed packages under
+> node_modules where the skill stops. Run npm test and npm run lint, and skip next build
+> and the e2e suites. AGENTS.md current.
+
+This run takes about eight minutes, which is room enough for every point below.
+
+**Teaching points**
+
+- **Expect both registrations to go through the extension's helpers.** `registerAppTool`
+  and `registerAppResource` from `@modelcontextprotocol/ext-apps/server` sit on top of
+  `@modelcontextprotocol/server` 2.x, which ext-apps 2.0.0 is the first version to
+  support. The tool ends up with `_meta.ui.resourceUri` set to
+  `ui://ai-tutor/todo-form.html`, and that string is the whole link between them.
+- **Expect the MIME type to show up twice.** `registerAppResource` defaults
+  `text/html;profile=mcp-app` on the `resources/list` entry only, so the read result
+  has to set it again. The profile is how a host tells an MCP App view from any other
+  HTML resource, and the prompt's test pins it on the read.
+- **Expect the new tool to stay out of `mcpTools`.** The contract's `mcpTools` list is
+  what the CLI's stdio MCP server registers, and a terminal has no iframe to put a form
+  in. One shared list of tool ids is convenient right up to the point where two servers
+  disagree about what they can do.
+- **Expect the handlers to be registered before `connect()`.** The host sends the tool
+  input the moment the postMessage handshake ends, so a listener added afterwards misses
+  the drafted title and the field comes up empty.
+- **Expect the app's tokens to turn into fallbacks.** The agent rewrites
+  `style.css` so each token reads `var(--color-..., <the app's value>)`. A host that
+  sends style variables wins, and a silent host leaves the form in the ai-tutor ramp.
+- **Expect a real MCP client in the test.** A fake that returns canned JSON proves
+  nothing about a protocol. Expect a `Client` wired to the server over
+  `InMemoryTransport.createLinkedPair()`, asserting the resource link on the tool and
+  the MIME type on the read.
+- **Expect the tool description to do routing work.** `add_todo` already exists and
+  saves straight away, so the description of `open_todo_form` has to tell the model when
+  a form is the better answer. That sentence is the only thing standing between your
+  demo and a to-do that gets saved before anyone sees it.
+
+### See the form the model drafted
+
+Open the **Playground** tab in MCPJam and pick its chat. The built-in model is Claude
+Haiku 4.5 and costs you no API key. Type:
+
+```text
+I have to prepare the MCP Apps demo. Let me check the to-do before you save it.
+```
+
+About four seconds later the form appears in the transcript with "Prepare the MCP Apps
+demo" already in the title field. Read the sentence back with the room, because its
+second half is what steered the model. It called `open_todo_form` with a title it wrote
+itself, and not `add_todo`, because the user asked to look before saving.
+
+Click **Add**. The status line says the form is not connected yet, which is what the
+prompt asked for.
+
+Each widget has its own tabs. Inline, PiP, and Fullscreen change how it sits in the
+transcript, and **Data** shows the tool input, the tool result, and the model-context
+payload as JSON. Open **Data** and find
+the title the model invented in the tool input. Then click the moon icon in the
+Playground toolbar: the host flips theme and the form follows, because the view applies
+the host's style variables.
+
+> **Prompt 24.2**
+>
+> Make the to-do form save. The model drafts and the human commits, so saving goes
+> through a new tool submit_todo_form that only the MCP App may call: its visibility is
+> app, and it stays out of mcpTools like open_todo_form. It validates with
+> CreateTodoRequest from the contract, saves through lib/todo-tools.ts for the user of
+> the OAuth token, and returns the new to-do together with the user's open to-dos,
+> because the form shows them. In the view, Add calls the tool through the App, shows
+> the saved to-do and the refreshed open list, shows a rejected title as an error in the
+> form, and tells the model what was saved with updateModelContext, so the next turn
+> knows without a second tool call. open_todo_form also returns the open to-dos, so the
+> form shows them right away. Tests: tools/list marks submit_todo_form as app-only, it
+> saves for the calling user only, and it rejects an empty title. Run npm test and npm
+> run lint, and skip next build and the e2e suites. AGENTS.md current.
+
+This run takes about five minutes. Leave the MCPJam tab open while it runs.
+
+**Teaching points**
+
+- **Expect `_meta.ui` to carry two keys now.** `submit_todo_form` gets
+  `{ resourceUri, visibility: ["app"] }`, and its input schema is the contract's
+  `CreateTodoRequest`, so the form and the REST API from session 3 validate a new to-do
+  through the same zod object.
+- **Expect one new query next to the old ones.** The form shows the open list, so
+  `lib/todo-tools.ts` gains `listOpenTodosFor`, and the tool returns the saved to-do
+  together with that list in one result. A second round trip to fetch the list would
+  cost another postMessage hop for data the server already had in hand.
+- **Expect a rejected title to arrive as a result rather than an exception.** A schema
+  failure comes back as a tool result with `isError` set, so the view reads the text off
+  the result and prints `Not saved: ...` in the form. Code that only catches throws
+  shows the user nothing.
+- **Expect Add to be disabled twice over.** Once for an empty title, and again while a
+  save is in flight, because `callServerTool` is a round trip and an impatient user
+  clicks again.
+- **Expect a test with two users in it.** The prompt asks whether the save is scoped to
+  the caller, and the only honest way to answer that is two users on one migrated temp
+  database, each saving a to-do and then listing.
+
+### Save, then ask the model what happened
+
+Reload the Playground, type the same sentence again, and click **Add** when the form
+comes up. If the Tools tab does not list `submit_todo_form` yet, reconnect the server
+first, and if the form still claims it is not connected, `npm run build:views` has not
+run since the agent changed the view.
+
+The status line says `Added "Prepare the MCP Apps demo"` in about a third of a second,
+and the open list under the form grows by one. Switch to <http://localhost:3000> and
+look at the ai-tutor sidebar, where the same to-do sits under the account you consented
+with.
+
+Back in the chat, ask this:
+
+```text
+What did I just add, and how many open to-dos do I have now?
+```
+
+The answer comes with no tool call at all, because `updateModelContext` put the saved
+to-do and the open list into the model's context when you clicked Add. If the Playground
+shows more than one client pane, the chips left of the model picker in the composer turn
+them on and off. Keeping two panes makes the point sharper: the pane whose form you
+clicked answers from context, and the pane you left alone calls `list_todos` to find
+out.
+
+Now open the **Tools** tab once more. `submit_todo_form` is listed, marked
+`visibility: ["app"]`, and MCPJam lets you run it by hand anyway. Do that, and a to-do
+is saved. The flag asks the host to keep the tool away from the model, and the host
+decides whether to honor it. MCPJam's own switch is called "Respect tool visibility" and
+is on by default. It lives under **Connect**, the client card, the **Client** tab, then
+**Agent**, in the group "Agent tooling".
+What actually keeps one student's list away from another is the OAuth token on the
+request and the per-user queries in `lib/todo-tools.ts`.
+
+A view has two ways to talk into the conversation, and the form uses the quiet one.
+`updateModelContext` hands the host a block of text that reaches the model with the
+user's next message. `sendMessage` posts into the chat as if the user had typed it,
+which starts a turn right away and would be the wrong choice for a save the user is
+already looking at.
+
+**Verify:** `npm test` and `npm run lint` are green. In MCPJam, the drafted title arrives
+in the form, Add saves in well under a second, the to-do shows up in the ai-tutor
+sidebar at <http://localhost:3000>, an empty title leaves Add disabled, and a title the
+schema refuses comes back as `Not saved: ...` inside the form. Commit and push.
+
+---
+
+## Wrap-up
+
+Three kinds of generative UI ran in the same app today, and the diagram from the morning
+sorts them by how much the agent gets to decide. The table sorts them by who does the
+work.
+
++-----------------+----------------+------------------+------------------+-----------------+
+|                 | Who writes the | What crosses the | Who renders it   | Where it fits   |
+|                 | UI             | wire             |                  |                 |
++=================+================+==================+==================+=================+
+| useRenderTool   | Your frontend, | Tool arguments   | Your React       | Your own app,   |
+|                 | ahead of time  | and results      | component        | one row per     |
+|                 |                |                  |                  | tool            |
++-----------------+----------------+------------------+------------------+-----------------+
+| A2UI            | Your server,   | A component tree | The client, from | Your own app,   |
+|                 | or a second    | and a data       | the catalog you  | with no deploy  |
+|                 | model call     | model, as JSON   | ship             | per card        |
++-----------------+----------------+------------------+------------------+-----------------+
+| MCP App         | Your server    | One HTML file    | A sandboxed      | Any MCP host,   |
+|                 |                | behind a ui://   | iframe in a host | where no code   |
+|                 |                | resource         | you don't own    | of yours runs   |
++-----------------+----------------+------------------+------------------+-----------------+
+
+Pick by where the UI has to appear first. Inside an app you ship, `useRenderTool` stays
+the cheapest answer, and A2UI earns its keep the moment a new card would otherwise mean
+a frontend release. An MCP App is the only one of the three that works when the user
+sits in Claude or ChatGPT instead of your app, and you pay for that reach with a
+sandbox, a CSP, and a host whose theme you have to ask for.
+
+Open AGENTS.md and read the MCP App sections with the room. Neither the view build nor
+the tool wiring is obvious from the code alone, and the two sections are what the next
+agent run reads before it touches `mcp-apps/`.
+
+Session 5 takes the app that four sessions built and gets it into production: CI/CD,
+with the agent working inside the pipeline instead of beside it.
 
 ---
 
@@ -542,6 +929,12 @@ claude --model claude-opus-5 --dangerously-skip-permissions -p "<prompt>"
 A headless run loads the project MCP servers from `.mcp.json` without asking, so the
 `copilotkit-docs` tools are available in `-p` mode with no extra setting. An
 interactive `claude` asks for approval once.
+
+The MCP Apps prompts need nothing else. The `add-app-to-server` skill is a file in the
+repository, so a headless run picks it up the same way an interactive one does. What a
+headless run cannot do is click: MCPJam, the drafted title, and the Add button in steps
+23 and 24 are manual checks, and the tests the prompts write are what stands in for them
+in `-p` mode.
 
 No agent run today calls the tutor's model, because the prompts skip the e2e suites and
 the agents avoid spending your OpenRouter credit. The live checks in each step's
@@ -561,9 +954,11 @@ and test runs scrolling past are what the audience learns from.
   to its URL, and you can name that in the prompt.
 - **Pin what worked.** The prompts ran against CopilotKit 1.71.1 with
   `@ag-ui/a2ui-middleware` 0.0.10, `@ag-ui/a2ui-toolkit` 0.0.4, `@a2ui/web_core` 0.10.4,
-  `@ag-ui/mastra` 1.1.3, and A2UI v0.9. A2UI and its CopilotKit integration change
-  monthly. The starter's lockfile holds these versions, so don't run `npm update`
-  before the session.
+  `@ag-ui/mastra` 1.1.3, and A2UI v0.9. The MCP Apps half ran on
+  `@modelcontextprotocol/ext-apps` 2.0.0 against `@modelcontextprotocol/server` 2.0.0,
+  and the view build on vite 8.3.0 with `vite-plugin-singlefile` 2.3.3. A2UI and the MCP
+  Apps extension both change monthly. The starter's lockfile holds these versions, so
+  don't run `npm update` before the session.
 - **Step 21 depends on a small model drawing valid UI.** The comparison prompt works
   reliably, and it still takes up to three minutes. Start it, then talk. If a surface
   fails to paint or the run after it breaks, sign up a fresh account, since a malformed
@@ -575,3 +970,27 @@ and test runs scrolling past are what the audience learns from.
   server may be running. If Turbopack then fails to replace a symlink under
   `.next/dev/node_modules`, stop the server and delete that directory, as AGENTS.md
   says.
+- **Start MCPJam once before class.** `npx @mcpjam/inspector@latest` downloads on first
+  use, and a download in front of the room costs a slow minute. Steps 23 and 24 are
+  written against 3.8.1, so pin it with `npx @mcpjam/inspector@3.8.1` when a newer
+  release moves the buttons.
+- **The free chat has a quota.** MCPJam's Playground gives you Claude Haiku 4.5 without
+  an API key, counted per network per day. Once it runs out the chat fails with
+  "Unable to authenticate with MCPJam servers", so no model is left to open the form.
+  Sign in to MCPJam or add your own model key before the session, and rehearse
+  somewhere other than the classroom network.
+- **Click Add in the pane you are talking about.** The Playground shows several client
+  panes side by side, each with its own copy of the widget, and the chips left of the
+  model picker turn them on and off. Model context lands in the pane whose form you
+  clicked, so go down to one pane unless you are making that point on purpose.
+- **When the model reaches for `add_todo`, say the sentence again.** Which tool wins is
+  decided by a tool description, and a small model sometimes takes the shortcut and
+  saves without the form. Asking to check the to-do before saving brings the form back.
+- **A stale `mcp-apps/dist` shows yesterday's form.** `next dev` does not rebuild views.
+  After editing anything under `mcp-apps/`, run `npm run build:views` and reload the
+  widget. A form that ignores your change is this, every time.
+- **MCPJam's console noise is not yours.** It reports its own `script-src eval` CSP
+  notice on every load. With the Claude client preset, the host fonts from
+  `assets.claude.ai` are blocked by the font CSP and fall back to the system stack. The
+  preset named "MCPJam" sends a dark palette while reporting a light theme, which puts a
+  dark form into a light chat. The Claude, ChatGPT, and Cursor presets look right.

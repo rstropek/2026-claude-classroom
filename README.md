@@ -4,7 +4,7 @@ This repository holds the teaching material for [Agentische Entwicklung - mit Cl
 
 The classroom follows one AI chat agent, `ai-tutor`, from its first Next.js project through tools, Model Context Protocol (MCP) integration, security, generative UI, and continuous integration and deployment (CI/CD). The app gives each lesson something real to build, and what you actually learn is how to use Claude Code as a coding agent in the editor, the terminal, GitHub, and an automated delivery pipeline.
 
-Sessions 1 to 3 are in the repository. Session 4 has its storybook for the A2UI part, the MCP Apps part and the result folder follow, and so does session 5.
+Sessions 1 to 4 are in the repository, and session 5 follows.
 
 ## Sessions
 
@@ -15,7 +15,7 @@ Each session has a storybook and a result folder. The storybook is the live-codi
 | 1 | [`storybook-01.md`](storybook-01.md) | 1 to 7 | [`session-1-result/`](session-1-result/) |
 | 2 | [`storybook-02.md`](storybook-02.md) | 8 to 13 | [`session-2-result/`](session-2-result/) |
 | 3 | [`storybook-03.md`](storybook-03.md) | 14 to 18 | [`session-3-result/`](session-3-result/) |
-| 4 | [`storybook-04.md`](storybook-04.md) | 19 to 22 so far | follows |
+| 4 | [`storybook-04.md`](storybook-04.md) | 19 to 24 | [`session-4-result/`](session-4-result/) |
 
 Students don't clone this repository to follow along. Sessions 2 to 4 each start from a separate starter repository that the storybook links to: [`2026-claude-classroom-2-starter`](https://github.com/rstropek/2026-claude-classroom-2-starter), [`2026-claude-classroom-3-starter`](https://github.com/rstropek/2026-claude-classroom-3-starter), and [`2026-claude-classroom-4-starter`](https://github.com/rstropek/2026-claude-classroom-4-starter).
 
@@ -40,7 +40,7 @@ Session 3 also has a presentation on sandboxing:
 
 ### Session 4: generative UI
 
-Session 4 gives the agent a say in the user interface. It starts with a CodeTour through the `useRenderTool` rows from session 2, which are generative UI of the controlled kind. Then comes A2UI: a progress card in the chat with a fixed component tree and a custom catalog, generated surfaces from a second model call, and a project wizard on a page without a chat, where a memory-less agent changes one card in place. The starter carries the wizard's plain code, so the prompts spend their time on the agent and on A2UI. MCP Apps follow in the second half.
+Session 4 gives the agent a say in the user interface. It starts with a CodeTour through the `useRenderTool` rows from session 2, which are generative UI of the controlled kind. Then comes A2UI: a progress card in the chat with a fixed component tree and a custom catalog, generated surfaces from a second model call, and a project wizard on a page without a chat, where a memory-less agent changes one card in place. The second half switches to MCP Apps, where the MCP server from session 3 ships a to-do form as one self-contained HTML file and MCPJam renders it in a sandboxed iframe. The model drafts the title, the human clicks Add, and the save goes through a tool marked app-only. The starter carries the plain code for the wizard and the form, so the prompts spend their time on the agents and on the two protocols.
 
 ## Repository layout
 

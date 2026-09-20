@@ -1,0 +1,23 @@
++--------------------------------------+    +----------------------------------+
+| Host "(MCPJam, Claude, VS Code ...)" |    | "ai-tutor MCP server (OAuth)"    |
+|                                      |    |                                  |
+|  +--------------------------------+  | 1  |                                  |
+|  |             Model              +--+--->| "open_todo_form  ->"             |
+|  +---------+------------+---------+  |    |   "ui://ai-tutor/todo-form.html" |
+|            |            ^            | 2  |                                  |
+|          3 |          5 |            |<---+ resource                         |
+|            v            |            |    |   "ui://ai-tutor/todo-form.html" |
+|  +---------+------------+---------+  | 4  |                                  |
+|  |      "Sandboxed iframe:"       +--+--->| "submit_todo_form (app-only)"    |
+|  |        "todo-form view"        |  |    |                                  |
+|  +--------------------------------+  |    |                                  |
+|                                      |    |                                  |
++--------------------------------------+    +----------------------------------+
+
++------------------------------------------------------------------------------+
+| "1  tools/call open_todo_form"                                               |
+| "2  resources/read -> the single HTML file, loaded into the iframe"          |
+| "3  host -> view: the tool input (drafted title) over postMessage"           |
+| "4  Add clicked: view -> host (postMessage) -> tools/call submit_todo_form"  |
+| "5  view -> model: updateModelContext"                                       |
++------------------------------------------------------------------------------+
