@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="648" height="384" class="svgbob">
+  <style>.svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
+  stroke: black;
+  stroke-width: 2;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+  stroke-linecap: round;
+  stroke-linejoin: miter;
+}
+
+.svgbob text {
+  white-space: pre;
+  fill: black;
+  font-family: Iosevka Fixed, monospace;
+  font-size: 14px;
+}
+
+.svgbob rect.backdrop {
+  stroke: none;
+  fill: white;
+}
+
+.svgbob .broken {
+  stroke-dasharray: 8;
+}
+
+.svgbob .filled {
+  fill: black;
+}
+
+.svgbob .bg_filled {
+  fill: white;
+  stroke-width: 1;
+}
+
+.svgbob .nofill {
+  fill: white;
+}
+
+.svgbob .end_marked_arrow {
+  marker-end: url(#arrow);
+}
+
+.svgbob .start_marked_arrow {
+  marker-start: url(#arrow);
+}
+
+.svgbob .end_marked_diamond {
+  marker-end: url(#diamond);
+}
+
+.svgbob .start_marked_diamond {
+  marker-start: url(#diamond);
+}
+
+.svgbob .end_marked_circle {
+  marker-end: url(#circle);
+}
+
+.svgbob .start_marked_circle {
+  marker-start: url(#circle);
+}
+
+.svgbob .end_marked_open_circle {
+  marker-end: url(#open_circle);
+}
+
+.svgbob .start_marked_open_circle {
+  marker-start: url(#open_circle);
+}
+
+.svgbob .end_marked_big_open_circle {
+  marker-end: url(#big_open_circle);
+}
+
+.svgbob .start_marked_big_open_circle {
+  marker-start: url(#big_open_circle);
+}
+
+</style>
+  <defs>
+    <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 0,4 4,2 0,0"></polygon>
+    </marker>
+    <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
+    </marker>
+    <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="filled"></circle>
+    </marker>
+    <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="bg_filled"></circle>
+    </marker>
+    <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
+    </marker>
+  </defs>
+  <rect class="backdrop" x="0" y="0" width="648" height="384"></rect>
+  <rect x="4" y="8" width="312" height="224" class="solid nofill" rx="0"></rect>
+  <text x="138" y="76" >Model</text>
+  <polygon points="208,108 212,96 216,108" class="filled"></polygon>
+  <polygon points="104,132 112,132 108,144" class="filled"></polygon>
+  <text x="18" y="28" >Host</text>
+  <text x="90" y="124" >3</text>
+  <text x="194" y="124" >5</text>
+  <text x="58" y="28" >(MCPJam, Claude, VS Code ...)</text>
+  <text x="82" y="172" >Sandboxed iframe:</text>
+  <text x="98" y="188" >todo-form view</text>
+  <rect x="4" y="264" width="632" height="96" class="solid nofill" rx="0"></rect>
+  <text x="18" y="284" >1  tools/call open_todo_form</text>
+  <text x="18" y="300" >2  resources/read -&gt; the single HTML file, loaded into the iframe</text>
+  <text x="18" y="316" >3  host -&gt; view: the tool input (drafted title) over postMessage</text>
+  <text x="18" y="332" >4  Add clicked: view -&gt; host (postMessage) -&gt; tools/call submit_todo_form</text>
+  <text x="18" y="348" >5  view -&gt; model: updateModelContext</text>
+  <text x="330" y="60" >1</text>
+  <polygon points="344,68 352,72 344,76" class="filled"></polygon>
+  <text x="330" y="108" >2</text>
+  <polygon points="328,116 320,120 328,124" class="filled"></polygon>
+  <text x="330" y="156" >4</text>
+  <polygon points="344,164 352,168 344,172" class="filled"></polygon>
+  <text x="370" y="124" >resource</text>
+  <text x="370" y="28" >ai-tutor MCP server (OAuth)</text>
+  <text x="370" y="76" >open_todo_form  -&gt;</text>
+  <text x="386" y="92" >ui://ai-tutor/todo-form.html</text>
+  <text x="386" y="140" >ui://ai-tutor/todo-form.html</text>
+  <text x="370" y="172" >submit_todo_form (app-only)</text>
+  <g>
+    <line x1="356" y1="8" x2="636" y2="8" class="solid"></line>
+    <line x1="356" y1="8" x2="356" y2="232" class="solid"></line>
+    <line x1="636" y1="8" x2="636" y2="232" class="solid"></line>
+    <line x1="328" y1="120" x2="356" y2="120" class="solid"></line>
+    <line x1="356" y1="232" x2="636" y2="232" class="solid"></line>
+  </g>
+  <g>
+    <line x1="28" y1="56" x2="292" y2="56" class="solid"></line>
+    <line x1="28" y1="56" x2="28" y2="88" class="solid"></line>
+    <line x1="292" y1="56" x2="292" y2="88" class="solid"></line>
+    <line x1="292" y1="72" x2="344" y2="72" class="solid"></line>
+    <line x1="28" y1="88" x2="292" y2="88" class="solid"></line>
+    <line x1="108" y1="88" x2="108" y2="132" class="solid"></line>
+  </g>
+  <g>
+    <line x1="212" y1="108" x2="212" y2="152" class="solid"></line>
+    <line x1="28" y1="152" x2="292" y2="152" class="solid"></line>
+    <line x1="28" y1="152" x2="28" y2="200" class="solid"></line>
+    <line x1="292" y1="152" x2="292" y2="200" class="solid"></line>
+    <line x1="292" y1="168" x2="344" y2="168" class="solid"></line>
+    <line x1="28" y1="200" x2="292" y2="200" class="solid"></line>
+  </g>
+</svg>

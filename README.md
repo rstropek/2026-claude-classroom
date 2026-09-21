@@ -48,6 +48,7 @@ Session 4 gives the agent a say in the user interface. It starts with a CodeTour
 storybook-NN.md           Live-coding script per session, the single source of truth
 session-N-result/         Finished app at the end of session N
 session-3-presentation/   Session 3 slides and sandbox demos
+session-4-useRenderTool/  Two-file mini app: one Mastra tool, one useRenderTool card
 images/                   svgbob diagram sources (.bob) and rendered SVGs
 _quarto.yml               PDF build configuration
 _style/                   Quarto filters, theme, and LaTeX styling

@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="224" class="svgbob">
+  <style>.svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
+  stroke: black;
+  stroke-width: 2;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+  stroke-linecap: round;
+  stroke-linejoin: miter;
+}
+
+.svgbob text {
+  white-space: pre;
+  fill: black;
+  font-family: Iosevka Fixed, monospace;
+  font-size: 14px;
+}
+
+.svgbob rect.backdrop {
+  stroke: none;
+  fill: white;
+}
+
+.svgbob .broken {
+  stroke-dasharray: 8;
+}
+
+.svgbob .filled {
+  fill: black;
+}
+
+.svgbob .bg_filled {
+  fill: white;
+  stroke-width: 1;
+}
+
+.svgbob .nofill {
+  fill: white;
+}
+
+.svgbob .end_marked_arrow {
+  marker-end: url(#arrow);
+}
+
+.svgbob .start_marked_arrow {
+  marker-start: url(#arrow);
+}
+
+.svgbob .end_marked_diamond {
+  marker-end: url(#diamond);
+}
+
+.svgbob .start_marked_diamond {
+  marker-start: url(#diamond);
+}
+
+.svgbob .end_marked_circle {
+  marker-end: url(#circle);
+}
+
+.svgbob .start_marked_circle {
+  marker-start: url(#circle);
+}
+
+.svgbob .end_marked_open_circle {
+  marker-end: url(#open_circle);
+}
+
+.svgbob .start_marked_open_circle {
+  marker-start: url(#open_circle);
+}
+
+.svgbob .end_marked_big_open_circle {
+  marker-end: url(#big_open_circle);
+}
+
+.svgbob .start_marked_big_open_circle {
+  marker-start: url(#big_open_circle);
+}
+
+</style>
+  <defs>
+    <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 0,4 4,2 0,0"></polygon>
+    </marker>
+    <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
+    </marker>
+    <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="filled"></circle>
+    </marker>
+    <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="bg_filled"></circle>
+    </marker>
+    <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
+    </marker>
+  </defs>
+  <rect class="backdrop" x="0" y="0" width="600" height="224"></rect>
+  <rect x="420" y="40" width="168" height="48" class="solid nofill" rx="0"></rect>
+  <text x="434" y="60" >MCP</text>
+  <text x="466" y="60" >Apps</text>
+  <text x="434" y="76" >steps</text>
+  <text x="482" y="76" >23</text>
+  <text x="506" y="76" >to</text>
+  <text x="530" y="76" >24</text>
+  <text x="50" y="12" >controlled</text>
+  <text x="250" y="12" >declarative</text>
+  <text x="18" y="60" >useRenderTool</text>
+  <text x="226" y="60" >A2UI</text>
+  <text x="18" y="76" >since</text>
+  <text x="66" y="76" >step</text>
+  <text x="106" y="76" >11</text>
+  <polygon points="200,68 208,72 200,76" class="filled"></polygon>
+  <text x="226" y="76" >steps</text>
+  <text x="274" y="76" >20</text>
+  <text x="298" y="76" >to</text>
+  <text x="322" y="76" >22</text>
+  <polygon points="408,68 416,72 408,76" class="filled"></polygon>
+  <text x="18" y="124" >The</text>
+  <text x="50" y="124" >frontend</text>
+  <text x="122" y="124" >owns</text>
+  <text x="18" y="140" >one</text>
+  <text x="50" y="140" >component</text>
+  <text x="130" y="140" >per</text>
+  <text x="18" y="156" >tool.</text>
+  <text x="226" y="124" >The</text>
+  <text x="258" y="124" >agent</text>
+  <text x="306" y="124" >sends</text>
+  <text x="354" y="124" >a</text>
+  <text x="226" y="140" >tree</text>
+  <text x="266" y="140" >of</text>
+  <text x="290" y="140" >parts</text>
+  <text x="338" y="140" >from</text>
+  <text x="226" y="156" >a</text>
+  <text x="242" y="156" >catalog,</text>
+  <text x="314" y="156" >as</text>
+  <text x="338" y="156" >JSON.</text>
+  <text x="434" y="124" >The</text>
+  <text x="466" y="124" >server</text>
+  <text x="522" y="124" >ships</text>
+  <text x="434" y="140" >HTML</text>
+  <text x="474" y="140" >that</text>
+  <text x="514" y="140" >runs</text>
+  <text x="554" y="140" >in</text>
+  <text x="434" y="156" >a</text>
+  <text x="450" y="156" >sandbox.</text>
+  <line x1="16" y1="184" x2="576" y2="184" class="solid"></line>
+  <polygon points="576,180 584,184 576,188" class="filled"></polygon>
+  <text x="170" y="204" >the</text>
+  <text x="202" y="204" >agent</text>
+  <text x="250" y="204" >gets</text>
+  <text x="290" y="204" >more</text>
+  <text x="330" y="204" >say</text>
+  <text x="362" y="204" >over</text>
+  <text x="402" y="204" >the</text>
+  <text x="434" y="204" >UI</text>
+  <text x="458" y="12" >open-ended</text>
+  <g>
+    <line x1="4" y1="40" x2="172" y2="40" class="solid"></line>
+    <line x1="4" y1="40" x2="4" y2="88" class="solid"></line>
+    <line x1="172" y1="40" x2="172" y2="88" class="solid"></line>
+    <line x1="172" y1="72" x2="200" y2="72" class="solid"></line>
+    <line x1="4" y1="88" x2="172" y2="88" class="solid"></line>
+  </g>
+  <g>
+    <line x1="212" y1="40" x2="380" y2="40" class="solid"></line>
+    <line x1="212" y1="40" x2="212" y2="88" class="solid"></line>
+    <line x1="380" y1="40" x2="380" y2="88" class="solid"></line>
+    <line x1="380" y1="72" x2="408" y2="72" class="solid"></line>
+    <line x1="212" y1="88" x2="380" y2="88" class="solid"></line>
+  </g>
+</svg>

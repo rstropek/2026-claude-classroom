@@ -171,6 +171,16 @@ leave it closed for now.
 
 ### Walk the tour
 
+The tour crosses nine files, so read the two-file version of the same mechanism first.
+[`session-4-useRenderTool/`](https://github.com/rstropek/2026-claude-classroom/tree/main/session-4-useRenderTool)
+in the classroom repository drops the sign-in and the database, and its agent keeps no
+memory. Its
+`app/api/copilotkit/[...all]/route.ts` holds a Mastra tool with the id `getWeather` and
+the agent that may call it, then hands both to the AG-UI bridge. Its `app/page.tsx`
+holds the chat and a single `useRenderTool` registration under the name `getWeather`.
+Run it and ask for the weather in Linz. The card in the transcript changes while the
+tool runs.
+
 Install the CodeTour extension when VS Code offers it, and start the tour "Controlled
 generative UI: useRenderTool" from the CodeTour view. It runs from the demo in the
 browser through the Mastra tools, the AG-UI bridge in the CopilotKit route, and the
