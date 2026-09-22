@@ -1,0 +1,21 @@
+{
+  "name": "session-4-jev",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "tsx --env-file=.env main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "0.6.0",
+    "openai": "7.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26",
+    "tsx": "4.23.15",
+    "typescript": "^7"
+  }
+}

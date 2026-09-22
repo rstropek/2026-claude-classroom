@@ -1,0 +1,71 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Structured output vs. Jev: two ways to get a decision",
+  "description": "The same three classification tasks, once as a prompt plus JSON schema against an LLM, once as typed questions against TypeSafe's Jev. Where the two APIs differ and what that buys. About 10 minutes including the demo. Run all commands from `session-4-jev/`.",
+  "steps": [
+    {
+      "title": "Demo: one todo, two answers",
+      "description": "Run `npm start`, pick scenario `1` (Single Category) and input `1` (the expense receipts).\n\nExpect two blocks. The first is a JSON object: `category` and `urgency`, one value each. The second lists every category with a probability, a confidence, and an urgency that may read `1.98` rather than `2`. Under each block: time, tokens, cost.\n\n**Question:** both said finance and urgent. Only one told you how sure it was, and only one did it in half a second for a hundredth of the price. Why?"
+    },
+    {
+      "file": "session-4-jev/main.ts",
+      "line": 17,
+      "title": "Clients: two native SDKs, one key",
+      "description": "Two clients, two vendors' own SDKs. `OpenAI` is pointed at OpenRouter's OpenAI-compatible root, `TypeSafeClient` at OpenRouter's plain `/api` root, because the SDK appends `/v1/systemone` itself.\n\n**Key point:** OpenRouter is only routing and billing here. Nothing about either API is OpenRouter-specific, except the `usage.cost` field it adds to both responses. Swap the base URLs and keys for the vendors' own and the code stays the same."
+    },
+    {
+      "file": "session-4-jev/scenarios.ts",
+      "line": 38,
+      "title": "Structured output, part 1: the prompt carries the meaning",
+      "description": "This is the `instructions` string for the first scenario. It holds everything the model needs to know: what each category means, what each urgency level means, and the rule to classify the remaining work rather than the background.\n\n**Show:** the definitions are prose. The model reads them the way a person would, and nothing checks that `finance` here means what `finance` means in the schema below."
+    },
+    {
+      "file": "session-4-jev/scenarios.ts",
+      "line": 59,
+      "title": "Structured output, part 2: the schema constrains the shape",
+      "description": "The `json_schema` block goes to the API as `text.format`. `strict: true` plus `enum` guarantees the model can only emit one of the seven category strings and one of the three integers.\n\n**Distinction:** the schema constrains the *output shape*, not the decision. It cannot say what `finance` means, so the meaning lives in the prompt and the allowed values live here. Two places, kept in step by hand.\n\nThe `description` fields are the only bridge, and they are prose again."
+    },
+    {
+      "file": "session-4-jev/scenarios.ts",
+      "line": 82,
+      "title": "Jev: a question is the whole contract",
+      "description": "The same task as Jev questions. `category` is a `choice`: an `instructions` sentence and `criteria` that map each allowed label to its definition.\n\n**Key point:** allowed values and their meaning sit in one object. There is no prompt, no schema, and no output to parse. The model is not asked to write anything; it is asked to decide between these seven labels, and it returns a probability for each.\n\nThis is what TypeSafe calls a System One model: it evaluates typed questions against a state instead of generating text."
+    },
+    {
+      "file": "session-4-jev/scenarios.ts",
+      "line": 98,
+      "title": "Score: ordered levels instead of an integer enum",
+      "description": "`urgency` is a `score`. The `criteria` array is ordered, and the index is the score, so level 0 is the first sentence and level 2 the last.\n\nCompare with line 73 above: `enum: [0, 1, 2]` says which integers are legal, and the rubric that gives them meaning is text in the prompt. Here the rubric *is* the type.\n\n**Show:** in the demo the score came back as `1.98`, an expected value over the levels, with a probability per level. The schema version can only ever say `2`."
+    },
+    {
+      "file": "session-4-jev/scenarios.ts",
+      "line": 140,
+      "title": "Noul: multi-label as independent yes/no questions",
+      "description": "Scenario 2 asks for several tags. The structured version at line 118 uses an array with an `enum` on its items; the model has to compose the list.\n\nThe Jev version asks eight `noul` questions, one per tag. Each returns the probability that the answer is yes, and some carry `criteria` with a `true` and a `false` description for the borderline cases the README worried about, such as expenses from a past trip not counting as travel.\n\n**Distinction:** one request, eight independent decisions, evaluated in parallel against the same state. Your code decides the threshold, and it can be different per tag."
+    },
+    {
+      "file": "session-4-jev/main.ts",
+      "line": 38,
+      "title": "The structured call: generate text, then parse it",
+      "description": "`responses.create` takes the prose `instructions`, the todo as `input`, and the schema as `text.format`. What comes back is a message with `output_text`, and line 49 runs `JSON.parse` on it.\n\n**Key point:** even with strict schemas this is still text generation. The model may reason first (watch for the reasoning-token count in the output), then writes JSON token by token, and the schema only guarantees it parses. You get one value per field and no signal about how close the runner-up was."
+    },
+    {
+      "file": "session-4-jev/main.ts",
+      "line": 45,
+      "title": "The Jev call: state in, typed answers out",
+      "description": "`systemOne` takes `state` and `questions`. The todo is `state`, meaning data to evaluate, not a prompt to follow. The questions are the objects from `scenarios.ts`, and the SDK infers the answer types from them.\n\n**Distinction:** there is no `instructions` and no `output_text`. `answers` is already an object keyed by question name, each tagged with its `type`. Nothing is parsed, and the state is never mixed into a prompt, which is also why prompt injection through the todo text has no instruction channel to use."
+    },
+    {
+      "file": "session-4-jev/main.ts",
+      "line": 59,
+      "title": "Reading answers: every decision comes with its uncertainty",
+      "description": "The loop switches on `answer.type`. A `choice` carries the winning label, a `confidence`, and `probabilities` for every label. A `score` carries the expected value, a confidence, the `legend`, and a probability per level. A `noul` is a single probability.\n\n**Key point:** this is the part the schema approach cannot give you. Confidence is a separate axis from the answer: your code can auto-apply above a threshold and route to a human below it, per question, without a second model call."
+    },
+    {
+      "file": "session-4-jev/main.ts",
+      "line": 73,
+      "title": "Cost and time, then when to use which",
+      "description": "Both SDKs report `input_tokens` and `output_tokens`; OpenRouter adds `cost`. In the demo run the structured call took about 3 seconds and $0.0014, the Jev call about half a second and $0.00003. Jev is billed on input only, since it generates nothing.\n\n**Transition:** Jev answers closed questions: pick one of these, rate on this scale, yes or no. It cannot write a summary, extract a free-form value, or invent a label you did not list. Structured output can, and that is what you pay for.\n\nRule of thumb for the rest of the session: if the answer is a decision over a set you can enumerate, ask Jev. If the answer has to be written, use an LLM with a schema."
+    }
+  ]
+}
