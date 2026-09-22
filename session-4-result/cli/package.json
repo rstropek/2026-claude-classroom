@@ -1,0 +1,30 @@
+{
+  "name": "ai-tutor-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Command-line client for the ai-tutor to-do list",
+  "type": "module",
+  "bin": {
+    "ai-tutor": "bin/ai-tutor.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --external:commander --external:zod --external:@modelcontextprotocol/server --outfile=dist/index.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "commander": "^15.0.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "ai-tutor-api-contract": "*",
+    "esbuild": "^0.28.2"
+  }
+}

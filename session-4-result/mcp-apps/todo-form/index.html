@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New to-do</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h1>New to-do</h1>
+
+      <div class="field">
+        <label for="todo-title">Title</label>
+        <input id="todo-title" type="text" autocomplete="off" />
+      </div>
+
+      <button id="add-todo" type="button">Add</button>
+
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <section class="open">
+        <h2>Open to-dos</h2>
+        <ul id="open-todos"></ul>
+        <p id="open-todos-empty" class="empty">Nothing on the list yet.</p>
+      </section>
+    </main>
+
+    <!-- Vite inlines both the stylesheet above and this module into one file. -->
+    <script type="module" src="./view.ts"></script>
+  </body>
+</html>

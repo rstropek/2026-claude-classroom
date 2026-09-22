@@ -1,0 +1,65 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "MCP App views: one HTML file per view",
+  "description": "How a view for an MCP App is built here: a Vite pipeline that folds a folder of HTML, CSS and TypeScript into one self-contained file, and the plain to-do form that goes through it. About 10 minutes including the build. Run all commands from the repository root.",
+  "steps": [
+    {
+      "title": "Demo: one file, and no second request",
+      "description": "Run `npm run build:views`, then open `mcp-apps/dist/todo-form.html` — in a browser for the form, in the editor for the source.\n\nExpect a styled form in the browser, and in the source a `<style>` block and the whole script inline. Search the file for `src=` and for `href=`: there is not one of either.\n\n**Key point:** that is not tidiness. An MCP host serves a view from a `ui://` resource into a sandboxed iframe with a default-deny CSP — the document arrives as a string, from no origin the page can fetch from again. A `<link>` to a stylesheet, a chunk the entry imports, a font from Google: each one is a request that will never be made, and the view simply arrives broken.\n\n**Question:** the folder next door has three files. So what turns three into one, and why is that harder than pointing a bundler at them?"
+    },
+    {
+      "file": "package.json",
+      "line": 67,
+      "title": "The two devDependencies and the three scripts",
+      "description": "`vite` and `vite-plugin-singlefile`, both dev only: the bundle ships, the bundler does not.\n\nThe plugin is the trick itself. Vite builds a view the normal way, emitting JavaScript and CSS beside the HTML, and the plugin folds every one of those emitted assets back into the document before it is written.\n\n**Scroll up to `scripts`:** `build:views` runs the build script, and `predev` and `prebuild` call it, so `npm run dev` and `npm run build` cannot start on a stale bundle.\n\n**Key point:** `next dev` does not watch `mcp-apps/`. Edit a view while the server is running and you rebuild by hand."
+    },
+    {
+      "file": "scripts/build-views.mjs",
+      "line": 40,
+      "title": "Vite as a library, not as a config file",
+      "description": "The script calls Vite's JavaScript API, and `configFile: false` is the interesting half of that decision.\n\n**Key point:** a `vite.config.*` at the repository root would not belong to Vite alone. Vitest reads the same file, and this project already configures Vitest in `vitest.config.mts` — a root config written for the views would quietly reach the test runner too. Passing the options here keeps the two apart.\n\n`root` on the next line points the build at the view's own folder, so `index.html` and everything it names resolve relative to it. `viteSingleFile()` below it is the plugin from the previous step."
+    },
+    {
+      "file": "scripts/build-views.mjs",
+      "line": 49,
+      "title": "One build per view, and why not one build",
+      "description": "The loop runs a complete Vite build per view folder. Rollup takes several inputs quite happily, so this looks like the wasteful way round. It is deliberate.\n\n**Key point:** with two entries in one build, Rollup factors shared code into a chunk and both pages `import` it. An import is a second request, and the sandbox will not make one. The single-file property survives only while each page is its own build.\n\n`emptyOutDir: false` follows from that: the builds share `mcp-apps/dist/`, so none of them may wipe what the previous one produced. The directory is cleared exactly once, up at line 34.\n\n**Show:** the rename below the build. Vite names the entry after its source file, so every view arrives as `index.html` and only then gets the view's own name."
+    },
+    {
+      "file": "mcp-apps/todo-form/index.html",
+      "line": 30,
+      "title": "The entry: index.html",
+      "description": "This is what Vite follows. A `.ts` file straight in a `<script type=\"module\">` — Vite transpiles the entry it finds in the HTML, so a view is TypeScript with no separate compile step.\n\n**Show:** this line and the `./style.css` link at the top of the file. Two ordinary relative paths that a browser would fetch, and after the build neither of them exists.\n\nThe markup is a form and nothing else: a labelled input, an `Add` button, an `aria-live` status line, and an empty list under \"Open to-dos\". The ids are the only contract between this file and the next two."
+    },
+    {
+      "file": "mcp-apps/todo-form/style.css",
+      "line": 12,
+      "title": "Tokens, copied rather than imported",
+      "description": "These are the semantic role tokens from `app/globals.css`, copied by hand.\n\n**Distinction:** the app's pages and this view share a design system but not a document. The iframe inherits nothing — not Tailwind, not `globals.css`, not even the Source Sans that `next/font` loads, since an external font is another request the CSP refuses. Copying is what the sandbox costs, and the two blocks now have to be kept in step deliberately.\n\nBelow this, dark is defined twice: once under `prefers-color-scheme`, once under a `data-theme` attribute on `<html>`. Nothing sets that attribute today. In step 24 the host's own theme arrives and does."
+    },
+    {
+      "file": "mcp-apps/todo-form/view.ts",
+      "line": 44,
+      "title": "view.ts: plain DOM, and a seam",
+      "description": "Everything in this file is DOM. Typed `getElementById` lookups, `Add` disabled while the trimmed title is empty, Enter submitting. No framework, and no MCP: `@modelcontextprotocol/ext-apps` is installed but nothing here imports it.\n\n`onSubmit` is the seam, and today it only writes a line into the status paragraph. The marked block says what step 24 puts in its place: connect the ext-apps `App`, read the initial title out of the tool input the host delivers, and call the server tool with the typed one.\n\n**Key point:** `setTitle`, `setStatus` and `renderOpenTodos` above are exported and unused. They are the surface the host will drive, and writing them now keeps step 24 about the protocol rather than about the DOM."
+    },
+    {
+      "file": "lib/mcp-app-views.ts",
+      "line": 15,
+      "title": "The server's side of the same file",
+      "description": "`readView` is all the server needs in order to hand a view to a client: one `readFile` of `mcp-apps/dist/<name>.html`.\n\n**Show:** the two guards. The name is matched against `[a-z0-9-]+` before it reaches the filesystem, because it will come from code that names a view rather than from a constant. And a missing file does not surface as `ENOENT` — it names `npm run build:views`, which is the actual fix on a fresh checkout.\n\n`server-only` on the first line is the marker `lib/db.ts` and `lib/auth.ts` carry too: `node:fs` must never follow an import into the browser bundle.\n\n**Key point:** nothing calls this yet. Step 24 registers the `ui://` resource that does."
+    },
+    {
+      "file": ".gitignore",
+      "line": 61,
+      "title": "The bundle is output, not source",
+      "description": "`mcp-apps/dist/` is generated, so it stays out of the repository while the folder of sources beside it stays in.\n\n**Key point:** this one line does a second job. `biome.json` turns on `vcs.useIgnoreFile`, so Biome reads this file as well — and a bundle with an inlined script and an inlined stylesheet is exactly the artefact a formatter would rewrite on every build. Ignoring it in git ignores it everywhere.\n\nThe consequence for a fresh clone is that `mcp-apps/dist/` does not exist until someone builds. That is why `predev` and `prebuild` exist, and why `readView` phrases its error the way it does."
+    },
+    {
+      "file": "tests/unit/mcp-app-views.test.ts",
+      "line": 26,
+      "title": "Contract: what the tests pin",
+      "description": "Three tests, no Vite and no bundle in sight: a built file reads back, a missing one names the build command, and a name that is not a view folder is refused before any filesystem call.\n\n**Key point:** the second parameter of `readView` is what makes that possible. The test points it at a temp directory, so `npm test` passes on a checkout that has never run `npm run build:views` — the build itself is covered by running it, not by a test.\n\n**Transition:** everything in this tour is plain web code, and that is the whole point of it being here already. Step 24 writes only the MCP half: the tool that returns this view, the `ui://` resource that serves the built HTML, and the `App` class inside `view.ts` that connects the two ends."
+    }
+  ]
+}

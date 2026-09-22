@@ -1,0 +1,174 @@
+/*
+ * The view runs in a sandboxed iframe of its own, so it inherits nothing from
+ * the app: no Tailwind, no globals.css, not even the page font. The role
+ * tokens below are therefore copied from app/globals.css rather than imported,
+ * and they have to stay in step with it by hand.
+ *
+ * Source Sans is loaded by next/font in the app and cannot be reached from
+ * here — an external font would be a second request, which the host's
+ * default-deny CSP refuses — so the view falls back to the same system stack
+ * globals.css names after it.
+ */
+:root {
+  --surface: #ffffff;
+  --raised: #f2f2f2;
+  --rule: #e8e9eb;
+  --edge: #c7c7c7;
+  --ink: #323232;
+  --ink-soft: #5a5a5a;
+  --ink-mute: #767676;
+  --signal: #0056a4;
+  --danger: #a11212;
+  /* Buttons are graphite, not blue — the brand keeps blue for links. */
+  --button: #464646;
+  --button-hover: #323232;
+
+  color-scheme: light dark;
+}
+
+/*
+ * Two dark selectors on purpose. The media query is the default, and step 24
+ * lets the MCP host set `data-theme` on <html> from its own host context —
+ * which has to win over the OS in both directions, hence the `:not()` guard.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #323232;
+    --raised: #464646;
+    --rule: #464646;
+    --edge: #5a5a5a;
+    --ink: #e0e0e0;
+    --ink-soft: #c7c7c7;
+    --ink-mute: #aeaeae;
+    --signal: #63a8e8;
+    --danger: #ef9a9a;
+    --button: #5a5a5a;
+    --button-hover: #6e6e6e;
+  }
+}
+
+:root[data-theme="dark"] {
+  --surface: #323232;
+  --raised: #464646;
+  --rule: #464646;
+  --edge: #5a5a5a;
+  --ink: #e0e0e0;
+  --ink-soft: #c7c7c7;
+  --ink-mute: #aeaeae;
+  --signal: #63a8e8;
+  --danger: #ef9a9a;
+  --button: #5a5a5a;
+  --button-hover: #6e6e6e;
+}
+
+/* Transparent: the host's own surface is the ground this panel sits on. */
+body {
+  margin: 0;
+  padding: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--edge);
+  background: var(--surface);
+  padding: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+h2 {
+  margin: 0 0 4px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-mute);
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+}
+
+label {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+input {
+  border: 1px solid var(--edge);
+  background: var(--raised);
+  color: var(--ink);
+  padding: 6px 8px;
+  font: inherit;
+}
+
+input:focus-visible,
+button:focus-visible {
+  /* Never removed, and never the only cue for a state. */
+  border-color: var(--signal);
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+button {
+  justify-self: start;
+  border: 1px solid transparent;
+  background: var(--button);
+  color: #ffffff;
+  padding: 6px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+button:disabled {
+  background: var(--raised);
+  color: var(--ink-mute);
+  cursor: default;
+}
+
+.status {
+  margin: 0;
+  min-height: 24px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.status[data-kind="error"] {
+  color: var(--danger);
+}
+
+.open ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Dense rows on a hairline grid, the way the app's own lists read. */
+.open li {
+  border-bottom: 1px solid var(--rule);
+  padding: 2px 0;
+  font-size: 14px;
+}
+
+.empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-mute);
+}

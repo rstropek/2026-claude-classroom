@@ -1,0 +1,13 @@
+{
+  "name": "ai-tutor-api-contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zod schemas for the ai-tutor REST API, shared by the web app and the CLI",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

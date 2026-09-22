@@ -1,0 +1,65 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Controlled generative UI: useRenderTool",
+  "description": "How this app already draws React components into the chat transcript for every agent tool call, and where that approach runs out. About 10 minutes including the demo. Run all commands from the repository root.",
+  "steps": [
+    {
+      "title": "Demo: the transcript draws itself",
+      "description": "Start `npm run dev`, open http://localhost:3000, sign in, and type: Add \"review the A2UI spec\" to my list, then show me the list.\n\nExpect rows in the transcript, not just prose: \"Writing to the list\" with the title, turning into \"Added\" when the call returns, then \"Consulted the list\" with an item count. The sidebar on the right refreshes at the same time.\n\nFor the layer underneath, open the CopilotKit Inspector and watch the AG-UI tool-call events arrive.\n\n**Question:** the model emitted only a tool name and a JSON argument. So who decided what those rows look like?"
+    },
+    {
+      "file": "app/page.tsx",
+      "line": 30,
+      "title": "Mount: what the server hands down",
+      "description": "`app/page.tsx` is a Server Component. It gates on the session, then renders the client-only `<Chat>` with three props.\n\n**Key point:** `agentId` is the registry key of the one Mastra agent, `threadId` is `tutor:<userId>` derived from the verified session rather than chosen by the browser, and `initialTodos` is read on the server so the sidebar has content on first paint.\n\nEverything after this line runs in the browser."
+    },
+    {
+      "file": "lib/todo-tools.ts",
+      "line": 94,
+      "title": "Tools: the ids are the contract",
+      "description": "`createTodoTools` builds the three Mastra tools the agent may call: `listTodos`, `addTodo`, `setTodoDone`. Each reads its `userId` off the per-request context, so a tool carries no user of its own.\n\n**Show:** the `id` strings, and the `.describe()` text on the input fields.\n\nOne literal, two audiences. The model reads the description and the tool name to decide what to call; the frontend, later in this tour, matches on exactly that `id`."
+    },
+    {
+      "file": "lib/tutor.ts",
+      "line": 116,
+      "title": "Agent: where the tools reach the model",
+      "description": "`lib/tutor.ts` is the whole agent: one `Agent` on an OpenRouter model with durable memory, held on a `Mastra` instance.\n\nThis line is the only place the tools are attached. Scroll up to `instructions` and note that the prose names `listTodos`, `addTodo` and `setTodoDone` and says when to use each one, so the ids appear twice and have to stay in step."
+    },
+    {
+      "file": "app/api/copilotkit/[...all]/route.ts",
+      "line": 24,
+      "title": "Transport: tool calls become events",
+      "description": "This route is the seam between the agent and the browser. It gates on the session first, then `MastraAgent.getLocalAgent` builds an AG-UI bridge per request, with `resourceId` and `requestContext` taken from the verified user id.\n\nBelow it, `CopilotRuntime` registers that bridged agent and `createCopilotRuntimeHandler` serves it under `/api/copilotkit`.\n\n**Key point:** tool calls do not stay on the server. They reach the browser as AG-UI events, one for the call, one for the arguments as they stream in, one for the result."
+    },
+    {
+      "file": "components/chat.tsx",
+      "line": 30,
+      "title": "Provider: three children, three jobs",
+      "description": "The `CopilotKit` provider is the client boundary, and it holds three children that do very different things.\n\n`CopilotChat` renders the transcript. `TodoToolCalls` registers the tool renderers and returns `null`, so it draws nothing of its own, but it has to sit inside the provider because registration is a hook. `TodosSidebar` observes the same run.\n\n**Distinction:** one provider, one agent run, three consumers of the same event stream."
+    },
+    {
+      "file": "components/todo-tool-calls.tsx",
+      "line": 52,
+      "title": "Concept: controlled generative UI",
+      "description": "This is the `addTodo` registration. `useRenderTool` takes a `name`, a `parameters` schema and a `render` function, which CopilotKit calls for every matching tool call.\n\n`status` is the lifecycle, so the row reads \"Writing to the list\" in flight and \"Added\" once complete. `parameters` is partial while the arguments stream. The result arrives as text and goes through zod.\n\n**Key point:** this is generative UI already, the controlled kind: the frontend owns the layout, the agent only triggers it. `name` matches the tool `id` by hand, and nothing type-checks that link."
+    },
+    {
+      "file": "components/ui/tool-call.tsx",
+      "line": 13,
+      "title": "Primitive: one component, written by hand",
+      "description": "`ToolCall` is what all three renderers reach for: a row with a left rule, a state marker and a verb. It knows nothing about tools or CopilotKit, and the verb states the state in words, so the colored rule is never the only cue.\n\nThe other half is `parseToolResult` in `lib/tool-result.ts`. AG-UI ships a result as JSON text, and a re-encoded one arrives as a quoted string, so it unwraps one extra layer. It sits outside the component so a test can import it without CopilotKit's stylesheet."
+    },
+    {
+      "file": "components/todos-sidebar.tsx",
+      "line": 50,
+      "title": "Contrast: draw the event, or react to it",
+      "description": "`TodosSidebar` is the second hook into the same run, with the opposite job. It calls `useAgent({ agentId })`, subscribes to `onToolCallResultEvent` and `onRunFinalized`, and refetches `GET /api/todos` on its session cookie.\n\n**Distinction:** `useRenderTool` draws the event. `agent.subscribe` reacts to it by re-reading the source of truth. The transcript row is a record of something that happened, the sidebar is the current state of the database."
+    },
+    {
+      "file": "tests/unit/todo-tool-calls.test.tsx",
+      "line": 14,
+      "title": "Contract: what the tests pin",
+      "description": "The checkable part needs no model: `parseToolResult` handles a single and a double encoded result and returns `null` rather than throwing, and `ToolCall` states its verb as text. The renderers themselves run only in `tests/e2e/todos.llm.spec.ts`, which spends credit.\n\n**Transition:** now count the cost. One hand-written component per tool, so a new kind of card is a frontend change and a redeploy. Only tool arguments and results cross the wire, so there is no two-way input, no form to send back, and a later tool call cannot update a row an earlier one drew.\n\nNext we turn it around: the agent sends the component tree itself, as JSON. That is A2UI."
+    }
+  ]
+}

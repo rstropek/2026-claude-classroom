@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788258126281,
+      "tag": "0000_true_sugar_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788258977489,
+      "tag": "0001_boring_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788854074529,
+      "tag": "0002_shallow_psylocke",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789281916790,
+      "tag": "0003_eager_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789282495803,
+      "tag": "0004_happy_giant_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789283765580,
+      "tag": "0005_new_ultimo",
+      "breakpoints": true
+    }
+  ]
+}

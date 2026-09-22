@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — see .claude/skills/ai-tutor-design.
+ *
+ * Two layers on purpose:
+ *
+ *   1. The ramp below is static. Graphite and the signal blue are the brand's
+ *      fixed palette and mean the same thing in either theme.
+ *   2. The semantic roles under it are reactive: `@theme inline` points each
+ *      utility at a plain custom property, so flipping those properties in the
+ *      dark media query re-colours `bg-surface`, `text-ink` and friends
+ *      everywhere at once. That is why components carry almost no `dark:`
+ *      classes — adding one usually means a missing role, not a missing
+ *      variant.
+ */
+
+@theme {
+  /* Signal blue. Links and focus rings only, never a fill or a wash. */
+  --color-brand: #0056a4; /* 7.3:1 on white */
+  --color-brand-hover: #00407a;
+  --color-brand-on-dark: #63a8e8; /* 6.4:1 on the dark ground */
+
+  /* The graphite ramp is the entire neutral palette; #000 is not in it. */
+  --color-grey-50: #f2f2f2;
+  --color-grey-200: #c7c7c7;
+  --color-grey-300: #aeaeae;
+  --color-grey-400: #959595;
+  --color-grey-600: #5a5a5a;
+  --color-grey-700: #464646;
+  --color-grey-800: #323232;
+  --color-grey-900: #202020;
+}
+
+/*
+ * The reactive roles. `--signal` rather than `--accent` on purpose: the chat's
+ * stylesheet defines its own `--accent` on `[data-copilotkit]`, which would
+ * shadow ours for everything rendered inside the transcript — including the
+ * tool-call rows.
+ */
+:root {
+  --ground: #e8edf0; /* the cool blue-grey page behind everything */
+  --surface: #ffffff; /* panels sitting on the ground */
+  --raised: #f2f2f2; /* row hover, inset fields */
+  --rule: #e8e9eb; /* hairline between rows inside a panel */
+  --edge: #c7c7c7; /* a panel's own border */
+  --ink: #323232;
+  --ink-soft: #5a5a5a; /* 6.9:1 on white */
+  --ink-mute: #767676; /* the lightest grey that still passes as text, 4.5:1 */
+  --signal: #0056a4;
+  --danger: #a11212;
+  --danger-surface: #fdf0f0;
+  /* Buttons are graphite, not blue — the brand keeps blue for links. */
+  --button: #464646;
+  --button-hover: #323232;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /*
+     * heise calls this palette "akwa". The ramp inverts rather than shifting
+     * hue — except the signal, which has to lighten: #0056a4 is only 3:1 on
+     * #202020, so the brand blue cannot survive the flip unchanged.
+     */
+    --ground: #202020;
+    --surface: #323232;
+    --raised: #464646;
+    --rule: #464646;
+    --edge: #5a5a5a;
+    --ink: #e0e0e0;
+    --ink-soft: #c7c7c7;
+    --ink-mute: #aeaeae; /* 7.3:1 here, but only 2.2:1 on white */
+    --signal: #63a8e8;
+    --danger: #ef9a9a;
+    --danger-surface: #3a2222;
+    /* Lifted off #464646, which would vanish into the dark surface. */
+    --button: #5a5a5a;
+    --button-hover: #6e6e6e;
+  }
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-rule: var(--rule);
+  --color-edge: var(--edge);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-accent: var(--signal);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-button: var(--button);
+  --color-button-hover: var(--button-hover);
+
+  --font-sans: var(--font-source-sans);
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  /* One family, two weights (400/600). A third weight reads as another site. */
+  font-family: var(--font-source-sans), system-ui, sans-serif;
+}
+
+/*
+ * Bend the chat's own theme onto the ramp instead of overriding its internals,
+ * so an upgrade cannot quietly restore the rounded default look. Its tokens
+ * are shadcn-shaped and scoped to `[data-copilotkit]`.
+ *
+ * Two things to know:
+ *   - Its dark theme is the class `[data-copilotkit].dark`, while ours is a
+ *     media query. Pointing its tokens at our already-reactive variables makes
+ *     it follow the OS without that class ever being applied.
+ *   - `:root` prefixes the selectors only to outrank `[data-copilotkit].dark`,
+ *     since the two stylesheets' import order is not guaranteed.
+ */
+:root [data-copilotkit],
+:root [data-copilotkit].dark {
+  --background: var(--surface);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  /* The send button is `primary`, so it tracks the app's graphite button. */
+  --primary: var(--button);
+  --primary-foreground: #ffffff;
+  --secondary: var(--raised);
+  --secondary-foreground: var(--ink);
+  --muted: var(--raised);
+  --muted-foreground: var(--ink-mute);
+  --accent: var(--raised);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --destructive-foreground: var(--danger);
+  --border: var(--edge);
+  --input: var(--edge);
+  --ring: var(--signal);
+  --radius: 0px;
+  --cpk-font-sans: var(--font-source-sans), system-ui, sans-serif;
+}
+
+/*
+ * `--radius` only reaches the tokens the chat derives from it. Its composer and
+ * send button are pill-shaped through hardcoded utilities
+ * (`cpk:rounded-[28px]`, `cpk:rounded-full`), which `--radius` cannot reach, so
+ * square them here. A rounded composer inside an otherwise square UI is the
+ * single most obvious tell that the theme is only half applied.
+ */
+:root [data-copilotkit] [class*="cpk:rounded"] {
+  border-radius: 0;
+}
+
+/*
+ * The composer is styled with hardcoded utilities rather than the tokens above
+ * — `cpk:bg-white`, a drop shadow, and a `cpk:dark:` variant that only fires
+ * under the `.dark` class this app never sets. So it stays white on the dark
+ * ground until it is bridged by hand. Restyle it as a system field: square,
+ * hairline border, no shadow.
+ */
+:root [data-copilotkit] .copilotKitInput {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  box-shadow: none;
+}
+
+:root [data-copilotkit] textarea::placeholder {
+  color: var(--ink-mute);
+}
+
+/*
+ * The composer's other controls hardcode a near-black icon colour, which lands
+ * at roughly 1.2:1 on the dark surface — invisible rather than merely off-brand.
+ * Their icons stroke with `currentColor`, so setting the colour is enough.
+ */
+:root
+  [data-copilotkit]
+  .copilotKitInput
+  button:not([data-testid="copilot-send-button"]) {
+  color: var(--ink-soft);
+}
+
+/* Same story: the send button hardcodes a translucent black fill. */
+:root [data-copilotkit] [data-testid="copilot-send-button"] {
+  background: var(--button);
+  color: #ffffff;
+}
+
+:root
+  [data-copilotkit]
+  [data-testid="copilot-send-button"]:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/*
+ * The CopilotKit Inspector, development only — a production build never loads
+ * it, so this element does not exist there and the rule matches nothing.
+ *
+ * Its <cpk-web-inspector> host anchors the launcher 16px into the top-right
+ * corner, on top of the header's sign-out button, and takes the clicks meant
+ * for it. The host is positioned by a transform, so shift it with the margin
+ * instead; dragging the launcher elsewhere still works and is remembered.
+ */
+cpk-web-inspector {
+  margin-top: 4rem;
+}
