@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "vsls-contrib.codetour",
+        "usernamehw.errorlens",
+        "tamasfe.even-better-toml",
+        "codezombiech.gitignore",
+        "ms-vscode.hexeditor",
+        "ritwickdey.liveserver",
+        "ms-vsliveshare.vsliveshare",
+        "mechatroner.rainbow-csv",
+        "humao.rest-client",
+        "gruntfuggly.todo-tree",
+        "ms-vscode-remote.vscode-remote-extensionpack"
+    ]
+}
