@@ -43,6 +43,11 @@ Session 3 also has a presentation on sandboxing:
 
 Session 4 gives the agent a say in the user interface. It starts with a CodeTour through the `useRenderTool` rows from session 2, which are generative UI of the controlled kind. Then comes A2UI: a progress card in the chat with a fixed component tree and a custom catalog, generated surfaces from a second model call, and a project wizard on a page without a chat, where a memory-less agent changes one card in place. The second half switches to MCP Apps, where the MCP server from session 3 ships a to-do form as one self-contained HTML file and MCPJam renders it in a sandboxed iframe. The model drafts the title, the human clicks Add, and the save goes through a tool marked app-only. The starter carries the plain code for the wizard and the form, so the prompts spend their time on the agents and on the two protocols.
 
+Session 4 has two side samples outside the storybook's main line:
+
+- [`session-4-useRenderTool/`](session-4-useRenderTool/) is the two-file version of the `useRenderTool` mechanism that step 19 points to before the tour.
+- [`session-4-jev/`](session-4-jev/) is a console app that runs the same classification tasks against an LLM with structured output and against TypeSafe's Jev, side by side. The CodeTour [`.tours/jev-vs-structured-output.tour`](.tours/jev-vs-structured-output.tour) walks through it.
+
 ### Session 5: the agent without its window
 
 Session 5 runs Claude Code without the terminal UI. It starts with `claude -p` in the shell: piped input, JSON output checked against a schema, a jq gate that sets an exit code, a live stream of tool calls, budgets, system prompts, and forked sessions. With those, Claude Code writes a code review report and a test protocol with annotated screenshots. A bake-off runs Claude Code and the pi coding agent on the same open-weight model and shows how much of a result the harness decides. The second part walks through `tutor-maintainer`, a TypeScript program on the Agent SDK in the starter: a custom tool, a hook, a human approval gate with rewind, a team of subagents whose security reviewer finds a cross-user chat leak that one agent misses, two fixers racing in two Git worktrees, and traces in Jaeger. The day ends in GitHub Actions, with plain CI, a `claude -p --bare` security review of every pull request, and branch protection as the gate.
@@ -54,7 +59,11 @@ storybook-NN.md           Live-coding script per session, the single source of t
 session-N-result/         Finished app at the end of session N
 session-3-presentation/   Session 3 slides and sandbox demos
 session-4-useRenderTool/  Two-file mini app: one Mastra tool, one useRenderTool card
+session-4-jev/            Console app: structured output vs. Jev on the same tasks
+storyboard-05-draft.md    Concept notes behind storybook-05.md
 images/                   svgbob diagram sources (.bob) and rendered SVGs
+.tours/                   CodeTour for session-4-jev
+.vscode/extensions.json   Recommended VS Code extensions, CodeTour among them
 _quarto.yml               PDF build configuration
 _style/                   Quarto filters, theme, and LaTeX styling
 _output/                  Rendered PDFs
@@ -78,11 +87,11 @@ quarto render storybook-03.md
 
 Quarto writes the PDFs to `_output/`. The `storybook-*.md` glob in `_quarto.yml` picks up new sessions without a config change. Keep lesson content in plain Markdown in the storybook, because `_quarto.yml` and `_style/` own the PDF presentation.
 
-`_output/` currently holds only `storybook-01.pdf`. Render again to get the PDFs for Sessions 2 and 3.
+`_output/` currently holds only `storybook-01.pdf`. Render again to get the PDFs for Sessions 2 to 5.
 
 ## Run a result app
 
-Each result app needs Node.js 20.9 or newer, an OpenRouter API key, and a Better Auth secret. Pick a session folder and run:
+Each result app needs Node.js 24 or newer (the version step 0 asks for), an OpenRouter API key, and a Better Auth secret. Pick a session folder and run:
 
 ```bash
 cd session-2-result
@@ -97,9 +106,10 @@ Fill in `.env` before `db:migrate`. The app runs at <http://localhost:3000>.
 The result folders differ in a few ways:
 
 - `session-3-result/` has no `.env.example` or `.gitignore` in the repository. Its `AGENTS.md` lists the variables `.env` needs (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `OPENROUTER_API_KEY`), so create the file by hand.
-- The result READMEs are still the `create-next-app` default. Read each folder's `AGENTS.md` for the real architecture and commands.
+- The READMEs of sessions 1 to 3 are still the `create-next-app` default. Read each folder's `AGENTS.md` for the real architecture and commands. `session-4-result/README.md` is a real one, written as the session 4 starter.
+- In `session-4-result/`, `npm run dev` first bundles the MCP App views under `mcp-apps/` through `npm run build:views`. The folder also carries two CodeTours in its own `.tours/`, so open it as the workspace root to run them.
 
-`npm test` runs the Vitest suite and `npm run test:e2e` runs Playwright. Neither calls a language model. Sessions 2 and 3 add `npm run test:e2e:llm`, which does call one and spends OpenRouter credit.
+`npm test` runs the Vitest suite and `npm run test:e2e` runs Playwright. Neither calls a language model. Sessions 2 to 4 add `npm run test:e2e:llm`, which does call one and spends OpenRouter credit.
 
 ## Audience
 
